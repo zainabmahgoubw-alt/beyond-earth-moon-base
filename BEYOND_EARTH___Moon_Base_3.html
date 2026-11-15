@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BEYOND EARTH – Moon Base</title>
+<style>
+:root{--bg:#030814;--p:#0c1d44;--a:#29d3e6;--b:#2f8fff;--o:#ff9f43;--w:#ffd36b;--g:#5dffb0;--r:#ff7b7b;--t:#e8f2ff;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--t);font:17px/1.45 "Trebuchet MS","Segoe UI",system-ui,sans-serif;overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#ui{position:fixed;inset:0;pointer-events:none;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+.scr{position:absolute;inset:0;pointer-events:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:14px;background:radial-gradient(ellipse at center,rgba(3,8,20,.05),rgba(3,8,20,.82));overflow:auto}
+h1{font-size:clamp(26px,5vw,50px);margin:0;max-width:880px;line-height:1.1;letter-spacing:.5px;text-shadow:0 0 24px rgba(41,211,230,.35)}
+h2{margin:0 0 6px;font-size:21px;letter-spacing:.3px;padding-right:48px}
+p{margin:6px 0}
+button{font:inherit;color:var(--t);background:linear-gradient(180deg,#153a74,#0b1f4a);border:1.5px solid var(--a);border-radius:14px;padding:8px 14px;cursor:pointer;min-height:44px;box-shadow:0 0 12px rgba(41,211,230,.22);transition:transform .12s,box-shadow .12s,background .12s}
+button:hover{background:linear-gradient(180deg,#1c4d96,#102a60);box-shadow:0 0 18px rgba(41,211,230,.5)}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--w);outline-offset:2px}
+button.pri{background:linear-gradient(180deg,#ffbe6a,#ff8a1f);border-color:#ffd9a0;color:#1b0f00;font-weight:700;font-size:18px;box-shadow:0 0 16px rgba(255,159,67,.45)}
+button.on{background:linear-gradient(180deg,#46f0ff,#1fb7cc);color:#02121a;border-color:#a8f7ff}
+button:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+button.big{font-size:21px;padding:12px 26px;min-height:56px}
+input[type=text],input:not([type]){font:inherit;font-size:22px;padding:10px 14px;border-radius:14px;border:2px solid var(--a);background:#071330;color:var(--t);text-align:center;width:min(320px,90%)}
+input[type=range]{accent-color:var(--a);width:90px}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.err{color:var(--r);min-height:1.4em}
+.card{background:linear-gradient(180deg,rgba(12,29,68,.94),rgba(6,14,36,.94));border:1.5px solid #284a8c;border-radius:18px;padding:14px;width:min(290px,92%);text-align:left}
+.card.live{border-color:var(--g);box-shadow:0 0 22px rgba(93,255,176,.25)}
+.tag{display:inline-block;font-size:13px;padding:2px 10px;border-radius:99px;background:#284a8c}
+.live .tag{background:var(--g);color:#03121f}
+.game{position:absolute;inset:0;display:flex;flex-direction:column;pointer-events:none}
+.game>*,.mid>*{pointer-events:auto}
+#hud{background:linear-gradient(180deg,rgba(3,8,20,.9),rgba(3,8,20,.62));padding:8px 12px;border-bottom:1.5px solid #284a8c}
+.hr{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.m{display:flex;gap:6px;align-items:center;font-size:14px}
+.m i{width:56px;height:10px;background:#12275a;border-radius:9px;overflow:hidden;display:inline-block}
+.m u{display:block;height:100%}
+.al{color:var(--w);font-size:14px;margin-top:4px}
+.mid{flex:1;min-height:0;display:flex;justify-content:flex-end;align-items:flex-start;gap:8px;padding:8px;pointer-events:none}
+.pn{width:min(390px,100%);max-height:100%;overflow:auto;position:relative;background:rgba(3,8,20,.88);border:1.5px solid #284a8c;border-radius:16px;padding:10px 12px}
+.bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:8px 8px 10px;pointer-events:none}
+.bar>*{pointer-events:auto;font-size:18px}
+.pulse{animation:pl 1.2s infinite}
+@keyframes pl{50%{transform:scale(1.18)}}
+.x{position:absolute;right:10px;top:10px;width:44px;height:44px;border-radius:50%;padding:0;font-size:20px;z-index:3;min-height:0}
+.ins{color:var(--w)}
+.ctl{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.fb{background:rgba(25,60,130,.7);border-radius:12px;padding:8px 10px;min-height:2.2em;animation:pop .35s}
+@keyframes pop{from{transform:scale(.95);opacity:.4}}
+.ts{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);width:min(560px,94%);background:linear-gradient(180deg,#143a7a,#0b2150);border:2px solid var(--w);border-radius:16px;padding:12px;text-align:center}
+.step{padding:4px 10px;border-radius:8px;background:#12275a;display:inline-block;margin:2px}
+.step.cur{background:var(--w);color:#111}.step.ok{background:var(--g);color:#111}
+.step2{padding:4px 10px;min-height:38px;font-size:14px}
+.modal{align-items:center}
+.modal>div,#lab>div{position:relative;width:min(720px,100%);max-height:100%;overflow:auto;text-align:left;background:linear-gradient(180deg,rgba(10,26,64,.97),rgba(4,10,28,.97));border:1.5px solid var(--a);border-radius:20px;padding:20px 18px 18px;box-shadow:0 0 44px rgba(41,211,230,.25)}
+#lab{background:rgba(2,6,16,.82)}
+#lab svg{width:100%;height:auto;max-height:44vh;border-radius:14px;display:block;margin:8px 0;border:1px solid #284a8c}
+.stars{font-size:54px;text-align:center;animation:bob 1.2s ease-in-out infinite}
+.bst{position:absolute;bottom:-30px;font-size:28px;animation:up 2.2s ease-out forwards;z-index:50;pointer-events:none}
+@keyframes up{to{transform:translateY(-110vh) rotate(40deg);opacity:0}}
+.intro{background:#02030a;padding:0;gap:0;justify-content:flex-end}
+#sl{position:absolute;inset:0;overflow:hidden}#sl svg{width:100%;height:100%;display:block;animation:kb 4.2s ease-out both}
+@keyframes kb{from{transform:scale(1.12);opacity:0}15%{opacity:1}to{transform:scale(1)}}
+#ic{position:relative;z-index:2;padding:18px 18px 70px;width:100%;text-align:center;background:linear-gradient(0deg,rgba(2,3,10,.92),rgba(2,3,10,0))}
+#ic .c2{font-size:clamp(20px,3.4vw,30px);font-weight:700;text-shadow:0 0 18px #000}
+.note{position:absolute;left:12px;bottom:10px;z-index:3;font-size:12px;opacity:.7}
+.isk{position:absolute;top:12px;right:12px;z-index:3}
+.idots{position:absolute;bottom:14px;left:0;right:0;display:flex;gap:8px;justify-content:center;z-index:3}
+.idots i{width:10px;height:10px;border-radius:50%;background:#284a8c}.idots i.on{background:var(--o)}
+.rise{animation:rise 4s ease-in forwards}@keyframes rise{from{transform:translateY(50px)}to{transform:translateY(-60px)}}
+.flame{animation:fl .2s infinite alternate;transform-origin:400px 330px}@keyframes fl{to{transform:scaleY(1.2)}}
+.stars{animation:sd 14s linear infinite}.stars2{animation:sd 32s linear infinite}@keyframes sd{to{transform:translateX(-800px)}}.shoot{animation:sh 3.2s ease-in infinite;opacity:0}.shoot.s2{animation-duration:4.6s;animation-delay:1.6s}@keyframes sh{0%{transform:translateX(0);opacity:0}8%{opacity:1}35%{transform:translateX(330px);opacity:0}100%{transform:translateX(330px);opacity:0}}.smoke{animation:sm 2.2s ease-out infinite;transform-box:fill-box;transform-origin:center;opacity:0}@keyframes sm{0%{transform:scale(.4) translateY(0);opacity:.7}100%{transform:scale(2.6) translateY(-14px);opacity:0}}.fly{animation:fy 4s ease-in-out forwards}@keyframes fy{from{transform:translate(-150px,60px)}to{transform:translate(170px,-70px)}}.wave{animation:wv .6s ease-in-out .3s 4 alternate}@keyframes wv{to{transform:rotate(-42deg)}}.cl2{animation:dr 9s ease-in-out infinite alternate-reverse}.pulse2{animation:p2 2.4s ease-out infinite;transform-box:fill-box;transform-origin:center}@keyframes p2{from{transform:scale(.9);opacity:.6}to{transform:scale(1.25);opacity:0}}.tw{animation:tw 2.4s ease-in-out infinite alternate}@keyframes tw{to{opacity:.15}}
+.drift{animation:dr 6s ease-in-out infinite alternate}@keyframes dr{to{transform:translateX(26px)}}
+.orb{animation:orb 12s linear infinite;transform-origin:400px 225px}@keyframes orb{to{transform:rotate(360deg)}}
+.dash{animation:dsh 1s linear infinite}@keyframes dsh{to{stroke-dashoffset:-18}}
+.mv{animation:mv 2.2s linear infinite}@keyframes mv{from{transform:translateX(0);opacity:1}to{transform:translateX(110px);opacity:.2}}
+.bob{animation:bob 1.6s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-8px)}}
+.spin{animation:spin 2s linear infinite;transform-box:fill-box;transform-origin:center}@keyframes spin{to{transform:rotate(360deg)}}
+#au{position:fixed;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;gap:6px;align-items:center;background:rgba(3,8,20,.82);border:1.5px solid var(--a);border-radius:16px;padding:2px 8px 2px 2px}
+#au button{min-height:40px;min-width:40px;padding:0;font-size:20px;border-radius:12px}
+a{color:var(--a)}
+@media(max-width:720px){.mid{flex-direction:column;justify-content:flex-end}.pn{max-height:55%;width:100%}.m i{width:34px}#au input{width:60px}}
+@media(prefers-reduced-motion:reduce){.stars2,.shoot,.smoke,.fly,.wave,.cl2,.pulse2,.tw,.dash,.mv,.bob,.spin,.fb,.pulse,.rise,.flame,.drift,.orb,.stars,#sl svg{animation:none}}
+</style></head><body>
+<canvas id="c" aria-label="3D Moon Base"></canvas>
+<div id="ui"></div>
+<div id="au"><button id="mb" aria-label="Sound on or off">🔊</button><input id="vol" type="range" min="0" max="100" value="60" aria-label="Volume"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script id="sim">
+/* ---- Simulation (pure rules, no visuals). All numbers are invented GAME UNITS. ---- */
+const clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
+const initState=()=>({day:1,adv:0,power:60,water:55,meals:6,air:100,hunger:100,
+ sys:{air:true,co2:true,wr:true,gl:true,comm:true},growth:0,harvest:0,ate:false,wstep:0,tested:false,sent:false,done:[],fin:[]});
+const dailyUse=s=>(s.sys.air?5:0)+(s.sys.co2?3:0)+(s.sys.wr?2:0)+(s.sys.gl?5:0);
+function advanceDay(s){
+ const n=JSON.parse(JSON.stringify(s)),notes=[],run={};
+ let a=n.power+10; // 1) generation
+ const go=(k,c)=>{if(!n.sys[k])return;if(a>=c){a-=c;run[k]=1}else notes.push(k+'_nopower')};
+ go('air',5);go('co2',3);go('wr',2); // 2) consumption by priority
+ let w=n.water-8+(run.wr?5:0);
+ if(n.sys.gl){if(a>=5&&w>=3){a-=5;w-=3;run.gl=1;n.growth++}else notes.push('gl_pause')}
+ if(!run.co2){n.air-=20;notes.push('co2_off')}
+ if(!run.air)n.air-=10;
+ n.power=clamp(a);n.water=clamp(w);n.air=clamp(n.air);
+ if(!n.ate){n.hunger=clamp(n.hunger-30);notes.push('hungry')}
+ n.ate=false;
+ if(n.growth>=3){n.growth=0;n.meals++;n.harvest++;notes.push('harvest')}
+ n.day++;n.adv++;
+ return{s:n,notes};
+}
+function eatMeal(s){if(s.meals<=0)return false;s.meals--;s.hunger=100;s.ate=true;return true}
+</script>
+<script>
+const Aud=(()=>{let ctx,master,mus,sg,amb,send,nb,tm=0,vol=.6,mute=false,mode='intro',ci=0,nC=0,nB=0,nA=0,last={},lastAny=0;
+try{const s=JSON.parse(localStorage.getItem('beAud'));if(s){vol=+s.v;mute=!!s.m}}catch(e){}
+const CH=[[110,220,261.63,329.63,392],[87.31,174.61,220,261.63,329.63],[130.81,196,261.63,329.63,392],[98,196,246.94,293.66,392]],BELL=[440,523.25,659.25,783.99,880,1046.5];
+const save=()=>{try{localStorage.setItem('beAud',JSON.stringify({v:vol,m:mute}))}catch(e){}};
+function init(){if(ctx){if(ctx.state==='suspended')ctx.resume();return}
+ try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+ master=ctx.createGain();master.gain.value=mute?0:vol;master.connect(ctx.destination);
+ mus=ctx.createGain();mus.gain.value=.55;mus.connect(master);sg=ctx.createGain();sg.gain.value=.9;sg.connect(master);amb=ctx.createGain();amb.gain.value=0;amb.connect(master);
+ const dl=ctx.createDelay(1.5);dl.delayTime.value=.45;const fb=ctx.createGain();fb.gain.value=.4;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2400;send=ctx.createGain();send.gain.value=.6;send.connect(dl);dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(mus);
+ const n=ctx.sampleRate*2,b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;nb=b;
+ const hs=ctx.createBufferSource();hs.buffer=nb;hs.loop=true;const hf=ctx.createBiquadFilter();hf.type='lowpass';hf.frequency.value=170;hs.connect(hf);hf.connect(amb);hs.start();
+ const ho=ctx.createOscillator();ho.frequency.value=55;const hg=ctx.createGain();hg.gain.value=.22;ho.connect(hg);hg.connect(amb);ho.start();
+ setMode(mode);nC=ctx.currentTime+.1;nB=nC+1;nA=nC+6;if(!tm)tm=setInterval(sched,400);sched()}
+function pad(fr,t,d){const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=mode==='intro'?1400:800;f.connect(mus);fr.forEach((x,i)=>[-5,5].forEach(dt=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=i?'triangle':'sine';o.frequency.value=x;o.detune.value=dt;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+2.5);g.gain.linearRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(f);o.start(t);o.stop(t+d+.1)}))}
+function bell(fq,t){[1,2.01].forEach((m,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=fq*m;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09/(i+1),t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+3);o.connect(g);g.connect(mus);g.connect(send);o.start(t);o.stop(t+3.1)})}
+function beep(t){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=1100+Math.random()*700;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.03,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.25);o.connect(g);g.connect(amb);o.start(t);o.stop(t+.3)}
+function sched(){if(!ctx||ctx.state!=='running')return;const t=ctx.currentTime;
+ while(nC<t+2){pad(CH[ci%4],nC,9);ci++;nC+=8}
+ while(nB<t+2){if(Math.random()<(mode==='intro'?.9:.55))bell(BELL[Math.random()*6|0],nB);nB+=mode==='intro'?1.1+Math.random()*1.4:1.8+Math.random()*2.4}
+ while(nA<t+2){if(mode==='game')beep(nA);nA+=7+Math.random()*8}}
+function setMode(m){mode=m;if(!ctx)return;amb.gain.setTargetAtTime(m==='game'?.45:0,ctx.currentTime,1);mus.gain.setTargetAtTime(m==='game'?.45:.6,ctx.currentTime,1.2)}
+function tone(f,t,d,ty,g,f2){const o=ctx.createOscillator(),e=ctx.createGain();o.type=ty||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(g,t+.01);e.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(e);e.connect(sg);o.start(t);o.stop(t+d+.05)}
+function whoosh(t,d,f1,f2,g){const s=ctx.createBufferSource();s.buffer=nb;const f=ctx.createBiquadFilter();f.type='bandpass';f.Q.value=1.2;f.frequency.setValueAtTime(f1,t);f.frequency.exponentialRampToValueAtTime(f2,t+d);const e=ctx.createGain();e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(g,t+d*.3);e.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(e);e.connect(sg);s.start(t);s.stop(t+d+.05)}
+const FX={
+click:t=>tone(880,t,.08,'sine',.12,660),
+select:t=>{tone(660,t,.1,'triangle',.14);tone(990,t+.06,.12,'triangle',.1)},
+open:t=>tone(300,t,.2,'sine',.1,720),
+close:t=>tone(700,t,.15,'sine',.1,300),
+toggle:t=>{tone(520,t,.07,'square',.04);tone(780,t+.05,.07,'square',.04)},
+step:t=>{tone(740,t,.09,'triangle',.12);tone(1110,t+.07,.1,'triangle',.1)},
+confirm:t=>[523,659,784].forEach((f,i)=>tone(f,t+i*.07,.14,'triangle',.11)),
+discover:t=>[784,988,1175,1568].forEach((f,i)=>tone(f,t+i*.09,.35,'sine',.1)),
+win:t=>{[523,659,784,1047].forEach((f,i)=>{tone(f,t+i*.12,.5,'triangle',.12);tone(f*2,t+i*.12,.5,'sine',.05)})},
+whoosh:t=>whoosh(t,.5,400,2400,.12),
+launch:t=>{whoosh(t,.8,200,3000,.14);tone(200,t,.7,'sine',.07,800)},
+zoom:t=>tone(500+Math.random()*120,t,.05,'sine',.05),
+alert:t=>{tone(440,t,.12,'sine',.1);tone(440,t+.16,.12,'sine',.1)},
+send:t=>{tone(400,t,.4,'sine',.1,1200);tone(1600,t+.3,.3,'triangle',.06)}};
+function sfx(n){if(!ctx||ctx.state!=='running'||mute||!FX[n])return;const now=performance.now();if(now-lastAny<30||now-(last[n]||0)<(n==='zoom'?110:70))return;lastAny=last[n]=now;FX[n](ctx.currentTime+.005)}
+function ap(){if(master)master.gain.setTargetAtTime(mute?0:vol,ctx.currentTime,.05);save()}
+return{init,sfx,setMode,toggle(){mute=!mute;ap();return mute},setVol(v){vol=v;if(v>0)mute=false;ap()},get muted(){return mute},get vol(){return vol},pause(p){if(!ctx)return;p?ctx.suspend():ctx.resume()}}})();
+const sfx=n=>Aud.sfx(n);
+{const mb=document.getElementById('mb'),vl=document.getElementById('vol');
+ const sy=()=>{mb.textContent=Aud.muted||Aud.vol===0?'🔇':'🔊';vl.value=Math.round(Aud.vol*100)};sy();
+ mb.onclick=()=>{Aud.init();Aud.toggle();sy();sfx('click')};
+ vl.oninput=()=>{Aud.init();Aud.setVol(vl.value/100);sy()};vl.onchange=()=>sfx('click');
+ addEventListener('pointerdown',()=>Aud.init(),true);addEventListener('keydown',()=>Aud.init(),true);
+ document.addEventListener('visibilitychange',()=>Aud.pause(document.hidden))}
+</script>
+<script>
+const $=q=>document.querySelector(q),ui=$('#ui'),KEY='beyondEarthMoonV1';
+let P={name:'',age:0},S=initState(),mode=1,cur=null,fb='',G={meal:null,ready:false,msg:null},introSeen=false;
+const young=()=>P.age<=9;
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({P,S}))}catch(e){}};
+const load=()=>{try{const d=JSON.parse(localStorage.getItem(KEY));return d&&d.P&&d.S?d:null}catch(e){return null}};
+const MSGS=['Hello Earth! The Moon base is ready.','Our plants are growing!','Thank you for helping us explore!'];
+const MEALS=['Veggie pasta','Chicken and rice','Apple oatmeal'];
+const OBJ=['Look around the habitat (drag to turn, scroll or use + and − to zoom)','Visit the air machine','Check that the air fans and CO₂ cleaner are ON','Visit the water machine','Test the water to make sure it is safe','Eat a meal in the galley','Send a message to Earth','Keep the base running for 3 mission days'];
+const TX={
+air:{n:'Air and Life Support',i:'Hey, Astronaut! This machine keeps your air fresh.',w:()=>young()?'It moves air around and cleans it, like a super air filter.':'This rack is a game version of an environmental control system. It circulates air and removes carbon dioxide (CO₂).',y:'You breathe in oxygen and breathe out CO₂. If CO₂ builds up, the air gets stale.',h:'Fans push air through a filter that catches CO₂, like a sponge for stale air.',x:'Make sure both switches are ON. Then press RUN SYSTEM CHECK.',m:'On the International Space Station, machines use electricity to make oxygen from water, and other machines remove CO₂. A real Moon base may use different tools, so this rack is a game idea inspired by that research.'},
+water:{n:'Water Recovery',i:'Every drop counts up here!',w:()=>young()?'This unit cleans used water so we can use it again.':'This unit is a game version of a water recovery system. It collects used water, cleans it and tests it.',y:'Bringing water from Earth is very hard, so astronauts clean it and use it again.',h:'Collect, Filter, Purify, Test, Store. Each step does a different job.',x:'Open the Water Lab and do each step in order. The water must pass the TEST before it can be stored!',m:'On the ISS, a recovery system turns used water and moisture from the air back into drinking water. Clear water can still hold germs too tiny to see, so sensors and treatment matter more than how water looks.'},
+power:{n:'Power Station',i:'This is where the base gets its energy!',w:()=>'The battery saves energy from the Sun. The screen shows who is using it.',y:'Fans, pumps, lights and the radio all need power. Power is limited, so we choose wisely.',h:'Sunshine gives +10 PU each day. Every machine that is ON uses some PU. The air machines get power first, then water, then the greenhouse.',x:'Switch the optional machines ON and OFF and watch the daily balance.',m:'PU means "power unit" and is made up for this game. Real solar panels and batteries are measured in watts and watt-hours. The Moon also has a very long night, which makes power planning tricky.'},
+green:{n:'Greenhouse',i:'Hey, Astronaut! Your plants are looking thirsty.',w:()=>'The greenhouse grows fresh plants for your crew.',y:'Plants can add fresh food to the menu. They also take in CO₂.',h:'Plants need light and water. Each day with both, they grow one step. After 3 growing days, you get a new meal!',x:'Keep the grow lights ON and keep some water in the tank.',m:'Space agencies study how to grow food in space. The growing times in this game are game rules, not facts about real lettuce.'},
+galley:{n:'Galley (Kitchen)',i:'Yum! Time to refuel, Astronaut.',w:()=>'This is where food is stored and made ready to eat.',y:'Your body needs energy to work, learn and explore.',h:'Space meals come in packs. Some need water or a little heat.',x:'Pick a meal, press PREPARE, then press EAT.',m:'Space food packaging is made to be light, safe and easy to store. The number of meals here is a game number.'},
+comm:{n:'Communication Terminal',i:'Calling Earth! Let us send a message home.',w:()=>'The terminal and antenna send radio signals to Earth.',y:'Radio signals are very fast, but space is big, so messages take time.',h:'Your message turns into radio waves. From the Moon, they take about 1.3 seconds on average to reach Earth. Mars is much farther away, so messages there can take many minutes.',x:'Turn the antenna ON, pick a message and press SEND.',m:'The Moon moves closer and farther from Earth, so the real delay changes a little. This game has no live link to NASA Mission Control.'}};
+TX.gallery={n:'Space Gallery',i:'Welcome to the Space Gallery! Explore the story of space exploration.',w:()=>'This wall shows the planets, rockets and spacecraft that help people explore space.',y:'Learning how we explore space helps us plan the next adventures.',h:'Look at each step to see the planets, the rockets and the trip back to the Moon.',x:'Press Next ▶ to explore each part of the gallery.',m:'The planet models here are not to scale. In real life, the Sun and planets are much bigger and much farther apart.'};
+const NM={air_nopower:'The air fans need more power.',co2_nopower:'The CO₂ cleaner needs more power.',wr_nopower:'The water unit needs more power, so it took a break.',gl_pause:'Your plants paused. They need power and water to grow.',co2_off:'The CO₂ cleaner was off, so the air score dropped. Turn it ON and clean the filter to fix it!',hungry:'Your tummy is rumbling. Visit the galley for a meal!',harvest:'Great news! Your plants grew a new meal!'};
+let lastObj='';function done(i){if(!S.done.includes(i)){S.done.push(i);lastObj=OBJ[i-1];sfx('discover');toast('⭐ Awesome! Step '+i+' done!')}}
+function toast(m){const t=$('#ts');if(!t)return;t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,6000)}
+/* ---------- Screens ---------- */
+function go(n){if(n===6)waveT=performance.now()/1000;clearTimeout(introT);Aud.setMode(n===6?'game':'intro');mode=n;base.visible=n===6;sp.visible=n!==6;ui.innerHTML='';
+ const d=document.createElement('div');d.className='scr';
+ const sc={1:()=>{const sv=load();d.innerHTML=`<h1>EARTH IS HOME. SPACE IS YOUR NEXT ADVENTURE.</h1><p style="font-size:20px">Discover what it takes to live beyond Earth.</p><div class="row"><button class="pri" data-a="start">START YOUR MISSION</button>${sv?`<button data-a="cont">CONTINUE (Astronaut ${esc(sv.P.name)})</button>`:''}</div>`},
+ 2:()=>{d.innerHTML=`<h1>How old is our astronaut?</h1><div class="row" role="group" aria-label="Age">${[7,8,9,10,11,12].map(a=>`<button data-a="age" data-v="${a}" class="${P.age==a?'on':''}" aria-pressed="${P.age==a}">${a}</button>`).join('')}</div><button class="pri" data-a="ageNext" ${P.age?'':'disabled'}>NEXT</button>`},
+ 3:()=>{d.innerHTML=`<h1>What should we call you, Astronaut?</h1><label for="nm" class="sr">First name</label><input id="nm" maxlength="12" autocomplete="off" placeholder="Type your first name" value="${esc(P.name)}"><div class="err" id="er" role="alert"></div><button class="pri" data-a="nameNext">NEXT</button>`;setTimeout(()=>$('#nm')&&$('#nm').focus(),50)},
+ 4:()=>{intro(d)},
+ 5:()=>{d.innerHTML=`<h1>Where will you explore?</h1><div class="row"><div class="card"><span class="tag">Coming later</span><h2>ORION SPACECRAFT</h2><p>The capsule that carries astronauts to the Moon. It carries its own stored oxygen and nitrogen for the trip.</p><p><i>You can play here in a later update.</i></p></div><div class="card"><span class="tag">Coming later</span><h2>GATEWAY — LUNAR ORBIT</h2><p>A small space station planned to circle the Moon.</p><p><i>You can play here in a later update.</i></p></div><div class="card live"><span class="tag">Play now!</span><h2>MOON BASE — LUNAR SURFACE</h2><p>Keep a home on the Moon running with air, water, power and food.</p><button class="pri" data-a="play">ENTER MOON BASE</button></div></div>`}};
+ if(n<6){sc[n]();ui.appendChild(d)}else game();
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function game(){ui.innerHTML=`<div class="game"><div id="hud"></div><div class="mid"><div id="pn" class="pn" hidden></div></div><div id="bar" class="bar"></div><div id="ts" class="ts" role="status" hidden></div></div>`;hud();side();panel();focusRoom();
+ if(!introSeen&&!S.done.length){introSeen=true;toast(`Welcome to your new lunar home, Astronaut ${P.name}. Your first job is to make sure the habitat is ready for its crew. Tap a glowing ⭐ to discover something!`)}}
+function alerts(){const a=[];if(!S.sys.co2)a.push('The CO₂ cleaner is OFF. Visit the air machine!');if(S.air<60)a.push('The air score is low. Clean the filter at the air machine.');if(S.water<20)a.push('Water is getting low. Visit the water machine!');if(S.power<20)a.push('Your greenhouse needs more energy, but the air system needs power too. Which one should we protect first?');if(S.meals===0)a.push('No meals left. Your plants can grow more!');if(S.hunger<50)a.push('Your tummy is rumbling. Time for a meal!');return a}
+function hud(){const el=$('#hud');if(!el)return;
+ const m=(ic,v,c,t)=>`<div class="m" role="img" aria-label="${t}: ${Math.round(v)} out of 100"><span aria-hidden="true">${ic}</span><i><u style="width:${v}%;background:${c}"></u></i></div>`;
+ el.innerHTML=`<div class="hr"><b>🧑‍🚀 ${esc(P.name)}</b><b>Day ${S.day}</b><b aria-label="Steps done">⭐ ${S.done.length}/8</b>${m('⚡',S.power,'#ffd36b','Power')}${m('💧',S.water,'#5ad1ff','Water')}${m('🌬️',S.air,S.air<60?'#ff8a8a':'#7dffb4','Air')}${m('😋',S.hunger,'#ffb347','Tummy')}<div class="m" role="img" aria-label="${S.meals} meals left">🍽️ ${S.meals}</div>${alerts().length?'<button data-a="alert" class="pulse" aria-label="Something needs attention">❗</button>':''}<button data-a="adv" class="pri" style="min-height:38px;font-size:15px" aria-label="Advance to next mission day">☀️ Next day</button></div>`}
+function side(){const el=$('#bar');if(!el)return;el.innerHTML=`<button data-a="mis">🎯 Mission ${S.done.length}/8</button><button data-a="stl">🧭 Places</button><button data-a="zi" aria-label="Zoom in">＋</button><button data-a="zo" aria-label="Zoom out">−</button><button data-a="more">⚙️ More</button>`}
+const ctl={
+air:()=>`<div>Air score (game number): <b>${S.air}/100</b></div>${tg('air','Air circulation')}${tg('co2','CO₂ removal')}<button data-a="filter">Clean the filter</button><button class="pri" data-a="check">RUN SYSTEM CHECK</button>`,
+water:()=>`<div>Step <b>${S.wstep+1} of 5</b> · Clean water: <b>${Math.round(S.water)} WU</b></div><button class="pri" data-a="lab" data-v="water">💧 Open the Water Lab</button>${tg('wr','Water recovery unit')}`,
+power:()=>`<div>Battery: <b>${Math.round(S.power)} / 100 PU</b></div><div>Sun adds <b>+10</b> each day. Machines use <b>−${dailyUse(S)}</b>. Daily balance: <b>${10-dailyUse(S)>=0?'+':''}${10-dailyUse(S)} PU</b></div><div>Air fans 5 · CO₂ cleaner 3 · Water unit 2 · Grow lights 5</div>${tg('wr','Water recovery (2 PU)')}${tg('gl','Greenhouse lights (5 PU)')}`,
+green:()=>`<div style="font-size:34px" aria-hidden="true">${['🌱','🌿','🌿','🥬'][S.growth]}</div><div>Growth: <b>${S.growth} / 3 days</b> · Water: <b>${Math.round(S.water)} WU</b></div><div>New meals grown: <b>${S.harvest}</b></div>${tg('gl','Grow lights')}`,
+galley:()=>`<div>Meals left: <b>${S.meals}</b> · Tummy: <b>${S.hunger}/100</b></div>${MEALS.map(m=>`<button data-a="meal" data-v="${m}" class="${G.meal===m?'on':''}">${m}</button>`).join('')}<button data-a="prep" ${G.meal&&!G.ready?'':'disabled'}>PREPARE</button><button class="pri" data-a="eat" ${G.ready?'':'disabled'}>EAT</button>`,
+comm:()=>`<div>Antenna: <b>${S.sys.comm?'ON':'OFF'}</b></div>${tg('comm','Antenna')}${['Hello Earth! The Moon base is ready.','Our plants are growing!','Thank you for helping us explore!'].map((m,i)=>`<button data-a="msg" data-v="${i}">Send: "${m}"</button>`).join('')}`};
+const tg=(k,l)=>`<button data-a="tgl" data-v="${k}" class="${S.sys[k]?'on':''}" aria-pressed="${S.sys[k]}">${l}: ${S.sys[k]?'ON':'OFF'}</button>`;
+let info='';
+function panel(){const el=$('#pn');if(!el)return;if(!cur){el.hidden=true;el.innerHTML='';return}
+ const t=TX[cur];el.hidden=false;
+ el.innerHTML=`<button class="x" data-a="close" aria-label="Close panel">✕</button><h2>${t.n}</h2><p><b>${t.i}</b></p><p class="ins">👉 ${t.x}</p><div class="ctl">${ctl[cur]()}</div><p class="fb" role="status">${fb}</p>${cur==='water'?'':`<button data-a="lab" data-v="${cur}">🔬 See it step by step</button>`}<div class="row" style="justify-content:flex-start;margin-top:6px">${[['w','What is it?'],['y','Why do we need it?'],['h','How does it work?'],['m','More science']].map(k=>`<button data-a="info" data-v="${k[0]}" class="${info===k[0]?'on':''}" aria-pressed="${info===k[0]}">⭐ ${k[1]}</button>`).join('')}</div>${info?`<p class="fb">${info==='w'?t.w():t[info]}</p>`:''}`}
+function refresh(){hud();side();panel();r3();save();if(L)drawLab()}
+/* ---------- Actions ---------- */
+function open(id){if(id==='window'){lookWindow();return}cur=null;fb='';info='';if(id==='air')done(2);if(id==='water')done(4);focusStation(id);openLab(id);refresh()}
+function checkEnd(){if(S.done.length>=7&&S.adv>=3&&!S.done.includes(8)){if(S.sys.air&&S.sys.co2&&S.air>=50){done(8);debrief()}else toast('Almost there! Get the air machines running again to finish your mission.')}}
+function waterStep(){const m=['Great! Used water from sinks and the air is gathered so none is wasted.','Filters catch bits you can see, like dust and hair.','Purifying takes care of germs that are too tiny to see.','Clear water can still hide tiny germs. Sensors check it, because looks can fool us!',null];
+  if(S.wstep===3){S.tested=true;done(5)}
+  if(S.wstep===4){if(!S.tested){fb='Not quite! The water must be tested first.';refresh();return}S.water=clamp(S.water+15);fb='Clean water stored! You added 15 WU to the tank.';S.wstep=0;S.tested=false}else{fb=m[S.wstep];S.wstep++}refresh()}
+function act(a,d){
+ const v=d.v;const md=$('#md');if(md)md.remove();lastObj='';sfx(SFXMAP[a]||'click');
+ if(a==='start')go(2);else if(a==='cont'){const sv=load();P=sv.P;S=sv.S;S.fin=S.fin||[];go(6)}
+ else if(a==='age'){P.age=+v;go(2)}else if(a==='ageNext'){if(P.age)go(3)}
+ else if(a==='nameNext'){const n=($('#nm').value||'').trim();if(!/^[\p{L}][\p{L}' -]{0,11}$/u.test(n)){$('#er').textContent='Please type just your first name, using letters (up to 12).';return}P.name=n;S=initState();save();go(4)}
+ else if(a==='explore')go(5);else if(a==='play'){introSeen=false;go(6);save()}
+ else if(a==='st')open(v);else if(a==='close'){cur=null;sel(null);focusRoom();refresh()}else if(a==='all'){cur=null;sel(null);focusRoom();refresh()}
+ else if(a==='zi')gd=clamp(gd-3,6,26);else if(a==='zo')gd=clamp(gd+3,6,26);else if(a==='reset'){cur=null;sel(null);focusRoom();refresh()}
+ else if(a==='tgl'){S.sys[v]=!S.sys[v];fb=S.sys[v]?'Nice! That machine is working again.':(v==='co2'?'The CO₂ cleaner is resting. Your air score will drop tomorrow unless you turn it back ON.':'Switched OFF. This machine will not use power until you turn it back ON.');if(v==='comm'&&!S.sys.comm)fb='The antenna is OFF. Turn it ON to talk to Earth.';refresh()}
+ else if(a==='filter'){if(!S.sys.co2)fb='Turn the CO₂ removal ON first. Then the clean filter can help!';else{S.air=clamp(S.air+30);fb=`Filter cleaned! A clean filter catches CO₂ better. Air score: ${S.air}.`}refresh()}
+ else if(a==='check'){if(S.sys.air&&S.sys.co2){done(3);fb='All systems go! The fans are spinning and the CO₂ cleaner is working. Fresh air for the whole crew!'}else fb='Not quite! One of the air switches is OFF. Which one needs to be ON?';refresh()}
+ else if(a==='wnext'){waterStep()}
+ else if(a==='meal'){G.meal=v;G.ready=false;fb=`You picked ${v}. Now press PREPARE.`;refresh()}
+ else if(a==='prep'){G.ready=true;fb='Smells good! Your meal is ready. Press EAT.';refresh()}
+ else if(a==='eat'){if(eatMeal(S)){G.ready=false;G.meal=null;done(6);fb='Yum! Your tummy is full again. Food gives your body energy to work and explore.'}else fb='No meals left. Grow some plants!';refresh()}
+ else if(a==='pickmsg'){G.msg=+v;fb='Nice choice! Now turn the antenna ON, then press SEND.';refresh()}
+ else if(a==='send'){if(G.msg==null)fb='Pick a message first!';else if(!S.sys.comm)fb='Turn the antenna ON first!';else{S.sent=true;done(7);fb='Message sent! From the Moon, a signal takes about 1.3 seconds on average to reach Earth. The real time changes a little because the Moon moves.';if(L&&L.id==='comm')L.i=3}refresh()}
+ else if(a==='msg'){if(!S.sys.comm){fb='Turn the antenna ON first!';}else{S.sent=true;done(7);fb='Message sent! From the Moon, a signal takes about 1.3 seconds on average to reach Earth. The real time changes a little because the Moon moves.'}refresh()}
+ else if(a==='adv'){const o=S,r=advanceDay(S);S=r.s;const m=r.notes.map(n=>NM[n]).filter(Boolean);fb='';refresh();modal(dayReport(o,S,m));checkEnd()}
+ else if(a==='rad'){toast('Space has tiny fast particles called radiation. Real bases use thick walls and shelters to help keep crews safe. In this game it is just a fact card, so there is nothing to manage yet!')}
+ else if(a==='src')sources();else if(a==='newgame'){if(confirm('Start over? Your saved game will be erased.')){try{localStorage.removeItem(KEY)}catch(e){}S=initState();cur=null;introSeen=false;closeLab();go(1)}}
+ else if(a==='info'){info=info===v?'':v;if(L)drawLab()}
+ else if(a==='alert')toast(alerts()[0])
+ else if(a==='mis')modal(`<h2>🎯 YOUR FIRST DAY ON THE MOON</h2><div class="ctl">${OBJ.map((o,i)=>{const ok=S.done.includes(i+1),st=OB2[i];return `<div class="fb">${ok?'✅':'⬜'} <b>Step ${i+1}</b> ${st[0]} ${o}${i===7?`<div style="font-size:26px" aria-label="${S.adv} of 3 days done">${[0,1,2].map(k=>k<S.adv?'☀️':'⚪').join(' ')}</div>`:''}${st[1]&&!ok?` <button data-a="st" data-v="${st[1]}">Show me</button>`:''}</div>`}).join('')}</div>`)
+ else if(a==='stl')modal(`<h2>🧭 Where do you want to go?</h2><div class="ctl">${Object.keys(TX).map(k=>`<button data-a="st" data-v="${k}">${TX[k].n}</button>`).join('')}<button data-a="all">Whole room view</button></div>`)
+ else if(a==='more')modal(`<h2>⚙️ More</h2><p>📡 Comms: <b>${S.sys.comm?'Online':'Off'}</b> · 🏠 Cabin pressure: <b>Steady</b> (game light)</p><div class="ctl"><button data-a="reset">Reset view</button><button data-a="window">🌍 Look out the window</button><button data-a="dest">🌌 Other destinations</button><button data-a="rad">Space weather info</button><button data-a="src">Where does the science come from?</button><button data-a="newgame">New game</button></div>`)
+ else if(a==='lab')openLab(v)
+ else if(a==='lstep'){if(L){L.i=+v;fb='';drawLab()}}else if(a==='lback'){if(L&&L.i>0){L.i--;fb='';drawLab()}}else if(a==='lnext'){if(L&&L.i<VIS[L.id].length-1){L.i++;fb='';drawLab()}}else if(a==='lclose'){closeLab();sel(null);focusRoom()}
+ else if(a==='ldo'){if(!L)return;const was=S.wstep;waterStep();if(was===4){celebrate('water')}else{L.i=S.wstep;drawLab()}}
+ else if(a==='lfin'){if(L)celebrate(L.id)}
+ else if(a==='next'){closeLab();sel(null);focusRoom();refresh()}
+ else if(a==='skip'){introK=ISC.length-1;introShow()}
+ else if(a==='window')lookWindow()
+ else if(a==='dest')go(5)
+ else if(a==='keep'){}
+}
+function dayReport(o,n,m){const row=(ic,l,a,b,u)=>{const d=Math.round(b-a);return `<div class="fb">${ic} <b>${l}</b>: ${Math.round(a)} → ${Math.round(b)} ${u} <b style="color:${d<0?'#ff8a8a':d>0?'#7dffb4':'#ccc'}">${d>0?'▲ +'+d:d<0?'▼ '+d:'• same'}</b></div>`};
+ return `<div style="font-size:54px;text-align:center" class="bob" aria-hidden="true">🌅</div><h2>Day ${o.day} is done!</h2>${row('⚡','Power',o.power,n.power,'PU')}${row('💧','Water',o.water,n.water,'WU')}${row('🌬️','Air score',o.air,n.air,'')}${row('😋','Tummy',o.hunger,n.hunger,'')}${row('🍽️','Meals',o.meals,n.meals,'')}${row('🌱','Plant growth',o.growth,n.growth,'/ 3')}<p>${m.join(' ')||'All your systems worked well. Great job!'}</p>`}
+function modal(h){const o=$('#md');if(o)o.remove();const d=document.createElement('div');d.className='scr modal';d.id='md';d.innerHTML=`<div role="dialog" aria-modal="true"><button class="x" data-a="keep" aria-label="Close">✕</button>${h}</div>`;ui.appendChild(d)}
+function debrief(){burst();sfx('win');modal(`<div class="stars" aria-hidden="true">⭐⭐⭐</div><h2 style="text-align:center;padding:0">Awesome! You did it! 🚀</h2><p style="text-align:center;font-size:20px">Astronaut ${esc(P.name)}, your Moon base is ready!</p><p style="text-align:center">Ready for your next space adventure?</p><div class="row"><button class="pri big" data-a="keep">Keep exploring ▶</button></div>`)}
+function sources(){const L=[['NASA ISS ECLSS','https://www.nasa.gov/reference/environmental-control-and-life-support-systems-eclss/'],['NASA Orion Crew Systems','https://www.nasa.gov/reference/crew-systems/'],['NASA Moon Base','https://www.nasa.gov/architecture-definition/'],['NASA Gateway','https://www.nasa.gov/reference/gateway-about/'],['CSA Food Production','https://www.asc-csa.gc.ca/eng/youth-educators/toolkits/food-production/'],['ESA MELiSSA','https://melissafoundation.org/the-melissa-program/']];
+ modal(`<h2>WHERE DOES THE SCIENCE COME FROM?</h2><p>This Moon base is a game made up by us, inspired by real research. It is not a finished NASA design.</p><p>The space introduction uses our own illustrations inspired by NASA’s Artemis program. They are not real NASA photographs.</p><p>The numbers (PU for power, WU for water) are made-up game units. They are not real NASA ratings. Real equipment is much more complicated.</p><ul>${L.map(l=>`<li><a href="${l[1]}" target="_blank" rel="noopener noreferrer">${l[0]}</a></li>`).join('')}</ul>`)}
+
+const SV=b=>`<svg viewBox="0 0 400 220" role="img" aria-label="Picture of this step"><rect width="400" height="220" fill="#0b1433"/>${b}</svg>`;
+const E=(t,x,y,s=48,c='')=>`<text class="${c}" x="${x}" y="${y}" font-size="${s}" text-anchor="middle" dominant-baseline="central">${t}</text>`;
+const T=(t,x,y,s=15,c='#fff')=>`<text x="${x}" y="${y}" font-size="${s}" fill="${c}" text-anchor="middle" font-weight="700">${t}</text>`;
+const Bx=(x,y,w,h,c,s='#5ad1ff')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${c}" stroke="${s}" stroke-width="3"/>`;
+const Ar=(x1,y,x2)=>`<line class="dash" x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#ffd36b" stroke-width="5" stroke-dasharray="10 8"/><path d="M${x2} ${y-9}l12 9-12 9z" fill="#ffd36b"/>`;
+const Dr=(x,y,d=0)=>`<text class="mv" style="animation-delay:${d}s" x="${x}" y="${y}" font-size="24">💧</text>`;
+const VIS={
+water:[
+{t:'Collect',b:'Collect the water',c:'Used water from sinks and showers, and even water from the air, goes into one tank. Nothing is wasted!',s:()=>SV(E('🚿',50,55)+E('🧼',50,115)+E('😮‍💨',50,175,36)+Ar(95,110,215)+Dr(100,95)+Dr(100,125,1)+Bx(235,40,140,140,'#14306a')+E('🛢️',305,100,64)+T('Collection tank',305,205,14))},
+{t:'Filter',b:'Filter the water',c:'The filter catches things you can see, like dust and hair. The water looks clearer, but it is not safe to drink yet.',s:()=>SV(E('🌫️',55,110,56)+T('Dirty water',55,160,13)+Ar(95,110,150)+Bx(165,45,90,130,'#1b2a5c','#ffd36b')+'<g stroke="#ffd36b" stroke-width="3" stroke-dasharray="3 9"><line x1="180" y1="70" x2="240" y2="70"/><line x1="180" y1="100" x2="240" y2="100"/><line x1="180" y1="130" x2="240" y2="130"/></g>'+T('Filter',210,36)+Ar(265,110,320)+E('💧',360,110,48)+T('Clearer water',355,160,13)+E('🔸',200,196,20,'bob'))},
+{t:'Purify',b:'Purify the water',c:'The purifier cleans away germs. They are far too tiny to see, so this step is super important.',s:()=>SV(E('💧',50,110)+E('🦠',85,70,28,'bob')+E('🦠',90,150,28,'bob')+Ar(115,110,170)+Bx(185,50,100,120,'#3b2a7a','#b69cff')+E('⚡',235,110,52)+T('Purifier',235,40)+Ar(295,110,335)+E('✨',370,90,36)+E('💧',370,135,36)+T('Germs gone!',345,190,14))},
+{t:'Test',b:'Test the water',c:'Clear water can still hide tiny germs. Sensors check the water, because looks can fool us!',s:()=>SV(E('🧪',90,95,64)+E('👀',90,170,32)+T('Looks can fool us!',90,205,12)+Bx(180,45,190,120,'#06231a','#7dffb4')+T('SENSOR SCREEN',275,35,13)+E('✅',275,105,64,'bob')+T('Safe to drink!',275,190,15,'#7dffb4'))},
+{t:'Store',b:'Store the clean water',c:'Only tested water goes into the clean-water tank. Now your crew has fresh water to drink!',s:()=>SV(Ar(30,110,120)+E('💧',70,95,44)+Bx(150,25,150,170,'#14306a')+'<rect x="158" y="85" width="134" height="102" rx="8" fill="#2f8fff" opacity=".8"/>'+E('🚰',225,55,40)+T('Clean water tank',225,208,13)+T('+15 WU',350,110,20,'#7dffb4'))}],
+air:[
+{t:'Breathe',c:'You breathe in oxygen. You breathe out a gas called carbon dioxide, or CO₂. In a closed base it builds up.',s:()=>SV(E('🧑‍🚀',110,110,80)+E('💨',185,95,40)+T('CO₂',240,70,20,'#ffd36b')+T('CO₂',300,120,20,'#ffd36b')+T('CO₂',250,160,20,'#ffd36b')+T('Too much CO₂ makes air stale',200,205,14))},
+{t:'Fans',c:'Fans keep the air moving, like a gentle breeze, so stale air can travel to the cleaner.',s:()=>SV(Ar(30,110,120)+E('🌀',200,110,84,'spin')+Ar(280,110,360)+T('Air moves around',200,200))},
+{t:'Filter',c:'The filter catches the CO₂, like a sponge for stale air. Clean air comes out the other side.',s:()=>SV(T('CO₂ CO₂',70,95,18,'#ffd36b')+T('CO₂',60,140,18,'#ffd36b')+Ar(105,115,160)+Bx(175,40,80,150,'#1b2a5c','#7dffb4')+T('CO₂ filter',215,30,13)+Ar(265,115,320)+E('🌬️',360,115,44)+T('Clean air',350,170,13,'#7dffb4'))},
+{t:'Fresh air',c:'Fresh air flows back into the room, ready for you to breathe. That is how the base stays comfy!',s:()=>SV(E('🌬️',90,110,56)+E(S.air>=60?'😊':'😷',200,100,80,'bob')+E('🌬️',310,110,56)+T('Air score: '+S.air+' / 100',200,175,16,S.air>=60?'#7dffb4':'#ff8a8a')+T('Fresh air for the whole crew!',200,203,13))}],
+power:[
+{t:'Sunshine',c:'On the Moon, the Sun shines brightly. In this game it gives your base +10 PU of power each day.',s:()=>SV(E('☀️',200,85,90,'bob')+T('+10 PU every day',200,170,22,'#ffd36b')+T('PU = power unit (a game number)',200,200,12))},
+{t:'Solar panels',c:'Solar panels catch sunlight and turn it into electricity.',s:()=>SV(E('☀️',70,50,50)+'<polygon points="120,170 300,170 335,100 155,100" fill="#173a8c" stroke="#5ad1ff" stroke-width="3"/><g stroke="#5ad1ff" stroke-width="2"><line x1="180" y1="100" x2="165" y2="170"/><line x1="210" y1="100" x2="210" y2="170"/><line x1="255" y1="100" x2="255" y2="170"/><line x1="140" y1="135" x2="317" y2="135"/></g>'+Ar(335,60,380)+T('Solar panels',220,200,14))},
+{t:'Battery',c:'The battery saves energy so you can use it any time. This bar shows your battery right now.',s:()=>SV(Bx(90,70,200,90,'#0a2a22','#7dffb4')+'<rect x="290" y="97" width="16" height="36" rx="4" fill="#7dffb4"/><rect x="100" y="80" width="'+(1.8*S.power)+'" height="70" rx="8" fill="#ffd36b"/>'+T(Math.round(S.power)+' / 100 PU',190,195,18))},
+{t:'Machines',c:'Every machine that is ON uses some power. The air machines get power first, then water, then the greenhouse.',s:()=>SV(E('🌬️',60,80,44)+T('Fans 5',60,125,14)+E('🫧',150,80,44)+T('CO₂ cleaner 3',150,125,13)+E('💧',250,80,44)+T('Water 2',250,125,14)+E('🌱',340,80,44)+T('Lights 5',340,125,14)+T('Which one should we protect first?',200,185,16,'#ffd36b'))}],
+green:[
+{t:'Light and water',c:'Plants need light and water. Your grow lights and water pipe give them both.',s:()=>SV(E('💡',200,35,44)+'<polygon points="170,55 230,55 300,150 100,150" fill="#ff55cc" opacity=".25"/>'+Dr(120,80)+Dr(170,70,1)+Bx(70,150,260,40,'#4a3426','#8b5e3c')+E('🌰',160,170,24)+E('🌰',240,170,24)+T('Light + water + time',200,212,13))},
+{t:'Sprout',c:'After the first day, a tiny sprout pops up. Plants grow a little each day they get light and water.',s:()=>SV(Bx(80,150,240,40,'#4a3426','#8b5e3c')+E('🌱',200,125,80,'bob')+T('Day 1',200,205,14))},
+{t:'Grow',c:'Day by day the plant grows bigger. Press Next day to let it grow. If power or water runs out, growth just pauses.',s:()=>SV(Bx(40,160,320,36,'#4a3426','#8b5e3c')+[0,1,2].map(i=>E(S.growth>i?['🌿','🌿','🥬'][i]:'🌱',90+i*110,125-i*6,40+(S.growth>i?30+i*14:0),S.growth>i?'bob':'')+T('Day '+(i+1),90+i*110,212,13)).join('')+T('Growth '+S.growth+' / 3',200,28,16,'#7dffb4'))},
+{t:'Harvest',c:'After 3 growing days you pick the plants and get one new meal. Yum!',s:()=>SV(E('🥬',90,110,76,'bob')+Ar(145,110,245)+E('🍽️',310,110,64)+T('+1 meal',310,170,18,'#7dffb4'))}],
+galley:[
+{t:'Pick',c:'Look at the menu and pick a meal you would like to eat today.',s:()=>SV(E('🍝',80,100,52)+E('🍚',200,100,52)+E('🥣',320,100,52)+T('Veggie pasta',80,155,12)+T('Chicken and rice',200,155,12)+T('Apple oatmeal',320,155,12)+T('Pick your meal!',200,200,16))},
+{t:'Prepare',c:'Space meals come in packs. Some need a little water or heat before they are ready.',s:()=>SV(E('📦',70,110,56)+Ar(110,110,165)+E('♨️',210,105,60,'bob')+Ar(250,110,285)+E('🍲',340,110,56)+T('Add water or heat',210,175,14))},
+{t:'Eat',c:'Eating gives your body energy to work, learn and explore. Your tummy bar goes back to full!',s:()=>SV(E('😋',100,105,80,'bob')+Bx(190,92,170,30,'#1b2a5c')+'<rect x="194" y="96" width="'+(1.62*S.hunger)+'" height="22" rx="8" fill="#ffb347"/>'+T('Tummy: '+S.hunger+'/100',275,150,15))}],
+comm:[
+{t:'Write',c:'Pick a short message for Earth. Your message is ready to go!',s:()=>SV(Bx(70,35,260,130,'#061018','#5ad1ff')+E('✍️',200,80,44)+T(G.msg==null?'Pick a message!':MSGS[G.msg],200,135,12,'#7dffb4')+T('Terminal',200,200,14))},
+{t:'Antenna',c:'The antenna turns your message into invisible radio waves and sends them into space.',s:()=>SV(E('📡',200,110,90,'bob')+'<g fill="none" stroke="#ffd36b" stroke-width="4" class="dash" stroke-dasharray="10 8"><path d="M260 70q30 40 0 80"/><path d="M290 55q45 55 0 110"/></g>'+T('Radio waves',200,200,14))},
+{t:'Travel',c:'Radio waves are super fast! From the Moon to Earth they take about 1.3 seconds on average.',s:()=>SV(E('🌕',50,110,48)+Ar(90,110,300)+E('🌍',355,110,52)+T('about 1.3 seconds',200,70,20,'#ffd36b')+T('The real time changes a little',200,185,13))},
+{t:'Earth',c:'Earth receives your message! Mars is much farther away, so messages there take many minutes.',s:()=>SV(E('🌍',120,105,84,'bob')+E('💌',260,100,52,'bob')+T('Message received!',200,185,16,'#7dffb4')+T('Mars: many minutes!',200,210,12))}]};
+VIS.gallery=[
+{t:'Planets',c:'Eight planets travel around our Sun. Earth is the only one where we know life exists.',s:()=>SV(E('☀️',38,110,64)+'<circle cx="95" cy="110" r="5" fill="#9aa3b2"/><circle cx="130" cy="110" r="8" fill="#e0b080"/>'+E('🌍',172,110,32)+'<circle cx="222" cy="110" r="7" fill="#d0603a"/><circle cx="278" cy="110" r="22" fill="#d9a066"/>'+E('🪐',350,110,48)+T('Planets (not to scale!)',200,195,14))},
+{t:'Rockets',c:'Big rockets lift spacecraft above Earth. The Orion spacecraft is built to carry astronauts to the Moon.',s:()=>SV(E('🚀',130,110,84,'bob')+Ar(190,110,260)+E('🛰️',320,100,60)+T('Rocket',130,175,14)+T('Orion spacecraft',320,160,14))},
+{t:'Back to the Moon',c:'The Artemis program plans to send astronauts back to the Moon, and one day help build bases there.',s:()=>SV(E('🌍',70,110,60)+Ar(110,110,250)+E('🌕',320,110,64,'bob')+E('🧑‍🚀',320,60,32)+T('Artemis',190,70,16,'#ffd36b'))}];
+let L=null;
+function openLab(id){L={id,i:id==='water'?S.wstep:0};fb='';drawLab()}
+function closeLab(){const e=$('#lab');if(e)e.remove();L=null}
+const XA={
+air:[null,()=>tg('air','Air circulation'),()=>tg('co2','CO₂ removal')+'<button data-a="filter">Clean the filter</button>',()=>`<div>Air score (game number): <b>${S.air}/100</b></div><button class="pri" data-a="check">RUN SYSTEM CHECK</button>`],
+power:[null,null,null,()=>`<div>Sun +10 · Machines −${dailyUse(S)} = <b>${10-dailyUse(S)>=0?'+':''}${10-dailyUse(S)} PU a day</b></div>`+tg('wr','Water recovery (2 PU)')+tg('gl','Greenhouse lights (5 PU)')],
+green:[()=>tg('gl','Grow lights')+`<div>Water: ${Math.round(S.water)} WU</div>`,()=>`<div>Growth: <b>${S.growth} / 3 days</b></div>`,()=>`<div>Growth: <b>${S.growth} / 3 days</b></div><button class="pri" data-a="adv">☀️ Next day (let the plants grow)</button>`,()=>`<div>New meals grown: <b>${S.harvest}</b> · Meals left: <b>${S.meals}</b></div>`],
+galley:[()=>`<div>Meals left: <b>${S.meals}</b></div>`+MEALS.map(m=>`<button data-a="meal" data-v="${m}" class="${G.meal===m?'on':''}">${m}</button>`).join(''),()=>`<button class="pri" data-a="prep" ${G.meal&&!G.ready?'':'disabled'}>PREPARE</button>`,()=>`<button class="pri" data-a="eat" ${G.ready?'':'disabled'}>EAT</button>`],
+comm:[()=>MSGS.map((m,i)=>`<button data-a="pickmsg" data-v="${i}" class="${G.msg===i?'on':''}">${m}</button>`).join(''),()=>tg('comm','Antenna'),()=>`<button class="pri" data-a="send" ${G.msg!=null&&S.sys.comm?'':'disabled'}>SEND MESSAGE</button>`,()=>`<div>${S.sent?'✅ Your message was sent!':'Go back and send a message first.'}</div>`]};
+function drawLab(){let el=$('#lab');if(!el){el=document.createElement('div');el.id='lab';el.className='scr modal';ui.appendChild(el)}
+ const v=VIS[L.id],st=v[L.i],w=L.id==='water',last=L.i===v.length-1,t=TX[L.id],xa=XA[L.id]&&XA[L.id][L.i]?XA[L.id][L.i]():'';
+ el.innerHTML=`<div role="dialog" aria-modal="true" aria-label="${t.n}"><button class="x" data-a="lclose" aria-label="Close">✕</button><h2>${t.n}</h2><p><b>${t.i}</b></p><div class="row" style="justify-content:flex-start">${v.map((x,i)=>`<button class="step2 ${i===L.i?'on':''}" data-a="lstep" data-v="${i}" ${w&&i>S.wstep?'disabled':''}>${w&&i<S.wstep?'✅':(i+1)+'.'} ${x.t}</button>`).join('')}</div>${st.s()}<p class="fb"><b>Step ${L.i+1}: ${st.t}.</b> ${st.c}</p>${lastObj?`<p class="fb" style="border:2px solid #5dffb0">⭐ Awesome! Step done!</p>`:''}<p class="ins">👉 ${t.x}</p><div class="ctl">${xa}</div>${fb?`<p class="fb" role="status">${fb}</p>`:''}<div class="row"><button data-a="lback" ${L.i?'':'disabled'}>◀ Back</button>${w&&L.i===S.wstep?`<button class="pri" data-a="ldo">${st.b}</button>`:''}${last&&!w?`<button class="pri" data-a="lfin">⭐ I did it!</button>`:`<button data-a="lnext" ${(w&&L.i>=S.wstep)?'disabled':''}>Next ▶</button>`}</div><div class="row" style="justify-content:flex-start;margin-top:8px">${[['w','What is it?'],['y','Why do we need it?'],['h','How does it work?'],['m','More science']].map(k=>`<button data-a="info" data-v="${k[0]}" class="${info===k[0]?'on':''}" aria-pressed="${info===k[0]}">⭐ ${k[1]}</button>`).join('')}</div>${info?`<p class="fb">${info==='w'?t.w():t[info]}</p>`:''}</div>`}
+const OB2=[['🔭',null],['🌬️','air'],['✅','air'],['💧','water'],['🧪','water'],['🍽️','galley'],['📡','comm'],['☀️',null]];
+let introT=0,introK=0,waveT=0;
+const seeded=n=>{let s=n;return()=>{s=(s*9301+49297)%233280;return s/233280}};
+const starsSVG=n=>{const lay=(seed,cnt,rmax,cls)=>{const r=seeded(seed);let o='';for(let i=0;i<cnt;i++)o+=`<circle cx="${r()*800|0}" cy="${r()*450|0}" r="${(r()*rmax+.3).toFixed(1)}" opacity="${(r()*.7+.3).toFixed(2)}"${i%3?'':` class="tw" style="animation-delay:-${(i%7)*.6}s"`}/>`;return `<g class="${cls}" fill="#fff"><g>${o}</g><g transform="translate(800 0)">${o}</g></g>`};return lay(n+50,45,.8,'stars2')+lay(n,70,1.4,'stars')};
+const SHOOT='<g transform="translate(120 40) rotate(28)"><g class="shoot"><line x1="0" y1="0" x2="-70" y2="0" stroke="#fff" stroke-width="2" stroke-linecap="round"/></g></g><g transform="translate(520 20) rotate(28)"><g class="shoot s2"><line x1="0" y1="0" x2="-55" y2="0" stroke="#cfe6ff" stroke-width="1.6" stroke-linecap="round"/></g></g>';
+const ISV=b=>`<svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration inspired by NASA Artemis missions"><defs><radialGradient id="eg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#7cc0ff"/><stop offset=".55" stop-color="#1d63c0"/><stop offset="1" stop-color="#07204d"/></radialGradient><radialGradient id="mg" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#e6e3dc"/><stop offset=".7" stop-color="#8d8b86"/><stop offset="1" stop-color="#35343a"/></radialGradient><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#01030c"/><stop offset="1" stop-color="#0b2a5c"/></linearGradient><radialGradient id="gl"><stop offset="0" stop-color="#ffb347" stop-opacity=".95"/><stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient></defs><rect width="800" height="450" fill="url(#sk)"/>${starsSVG(7)}${SHOOT}${b}</svg>`;
+const ORION='<path d="M-30 -22L30 -22L18 -66Z" fill="#cfd5df"/><rect x="-30" y="-22" width="60" height="38" fill="#e8ecf2"/><rect x="-26" y="16" width="52" height="16" fill="#8d97a8"/><g fill="#1d3f8f" stroke="#7ea6ff"><rect x="-150" y="-14" width="116" height="26"/><rect x="34" y="-14" width="116" height="26"/></g>';
+const ISC=[
+()=>ISV('<ellipse cx="300" cy="420" rx="170" ry="30" fill="#aab4c8" opacity=".5"/><ellipse cx="520" cy="425" rx="180" ry="28" fill="#aab4c8" opacity=".5"/><g fill="#cfd5df"><circle class="smoke" cx="360" cy="398" r="26"/><circle class="smoke" style="animation-delay:-.7s" cx="440" cy="398" r="30"/><circle class="smoke" style="animation-delay:-1.4s" cx="400" cy="402" r="34"/><circle class="smoke" style="animation-delay:-1.9s" cx="320" cy="404" r="22"/><circle class="smoke" style="animation-delay:-.3s" cx="480" cy="404" r="24"/></g><g class="rise"><ellipse cx="400" cy="380" rx="70" ry="125" fill="url(#gl)" class="flame"/><rect x="383" y="150" width="34" height="210" rx="6" fill="#e8772e"/><rect x="356" y="200" width="20" height="160" rx="6" fill="#f2f4f8"/><rect x="424" y="200" width="20" height="160" rx="6" fill="#f2f4f8"/><path d="M356 200l10-30 10 30zM424 200l10-30 10 30z" fill="#d9dde6"/><path d="M383 150l17-60 17 60z" fill="#f2f4f8"/><rect x="394" y="98" width="12" height="16" fill="#9aa3b2"/></g><rect y="410" width="800" height="40" fill="#10162a"/>'),
+()=>ISV('<circle cx="400" cy="700" r="420" fill="url(#eg)"/><circle cx="400" cy="700" r="434" fill="none" stroke="#7cc0ff" stroke-opacity=".35" stroke-width="12"/><circle class="pulse2" cx="400" cy="700" r="440" fill="none" stroke="#7cc0ff" stroke-width="4"/><g class="drift"><g transform="translate(400 190) rotate(-14)">'+ORION+'</g></g>'),
+()=>ISV('<circle cx="400" cy="225" r="212" fill="#4aa3ff" opacity=".16"/><circle cx="400" cy="225" r="176" fill="url(#eg)"/><path d="M330 150c30-20 60-5 70 20s-20 40-50 38-40-30-20-58zM420 250c30-10 50 20 40 50s-40 40-55 15-5-55 15-65zM300 270c15-5 25 10 18 25s-25 10-25-5z" fill="#4a9a5a"/><g fill="#fff" opacity=".55"><ellipse class="drift" cx="350" cy="120" rx="60" ry="10"/><ellipse class="cl2" cx="450" cy="210" rx="70" ry="9"/><ellipse class="drift" style="animation-duration:8s" cx="380" cy="320" rx="55" ry="9"/></g><circle class="pulse2" cx="400" cy="225" r="190" fill="none" stroke="#7cc0ff" stroke-width="3"/>'),
+()=>ISV('<circle cx="560" cy="270" r="210" fill="url(#mg)"/><g fill="#6f6d69" opacity=".55"><circle cx="480" cy="220" r="34"/><circle cx="600" cy="320" r="48"/><circle cx="640" cy="200" r="22"/><circle cx="520" cy="345" r="26"/><circle cx="690" cy="280" r="16"/></g><circle cx="150" cy="105" r="42" fill="url(#eg)"/><g class="fly"><g transform="translate(260 330) rotate(-10) scale(.5)">'+ORION+'</g></g>'),
+()=>ISV('<circle cx="610" cy="110" r="44" fill="url(#eg)"/><path d="M0 360C150 330 260 350 400 345S650 330 800 360V450H0Z" fill="#7b7a77"/><path d="M0 395C200 375 520 385 800 392V450H0Z" fill="#5d5c5a"/><g fill="#4a4947" opacity=".6"><ellipse cx="420" cy="410" rx="9" ry="4"/><ellipse cx="460" cy="418" rx="9" ry="4"/><ellipse cx="505" cy="410" rx="9" ry="4"/></g><g transform="translate(300 235)"><ellipse cx="10" cy="152" rx="62" ry="10" fill="#000" opacity=".35"/><rect x="-18" y="70" width="14" height="70" rx="6" fill="#e9ecf2"/><rect x="6" y="70" width="14" height="70" rx="6" fill="#e9ecf2"/><rect x="-24" y="132" width="24" height="12" rx="5" fill="#59607a"/><rect x="2" y="132" width="24" height="12" rx="5" fill="#59607a"/><rect x="-26" y="10" width="52" height="72" rx="18" fill="#f4f5f8"/><rect x="-42" y="14" width="16" height="52" rx="8" fill="#f4f5f8" transform="rotate(10 -34 14)"/><g class="wave" style="transform-origin:34px 14px"><rect x="26" y="14" width="16" height="52" rx="8" fill="#f4f5f8" transform="rotate(-25 34 14)"/></g><circle cx="0" cy="-8" r="26" fill="#f6f7fa"/><ellipse cx="3" cy="-8" rx="17" ry="15" fill="#c9962a"/><ellipse cx="-2" cy="-13" rx="6" ry="4" fill="#fff" opacity=".4"/><rect x="-14" y="30" width="28" height="14" rx="3" fill="#2f6fd0"/></g>'),
+()=>ISV('<circle cx="400" cy="225" r="180" fill="none" stroke="#29d3e6" stroke-opacity=".3" stroke-dasharray="6 10"/><circle cx="400" cy="225" r="72" fill="url(#eg)"/><g class="orb"><circle cx="580" cy="225" r="22" fill="url(#mg)"/></g>')];
+const ICAP=()=>[`Get ready, Astronaut ${esc(P.name)}! 3… 2… 1… Liftoff! 🚀`,'The Orion spacecraft carries astronauts on a long trip.','This is Earth, our home. Everyone you know lives here.','Next stop… the Moon!','One day, astronauts may live and work there.'];
+function intro(d){d.className='scr intro';d.innerHTML='<div id="sl"></div><div class="isk"><button data-a="skip">Skip ▶</button></div><div id="ic"></div><div class="idots" id="idt"></div><div class="note">Illustrations inspired by NASA’s Artemis program. They are not real photographs.</div>';ui.appendChild(d);introK=0;introShow()}
+function introShow(){if(!$('#sl'))return;const k=introK,last=k>=ISC.length-1;
+ $('#sl').innerHTML=ISC[k]();$('#idt').innerHTML=ISC.map((_,i)=>`<i class="${i<=k?'on':''}"></i>`).join('');
+ $('#ic').innerHTML=last?`<h1>Welcome aboard, Astronaut ${esc(P.name)}!</h1><p class="c2">Your journey beyond Earth starts now.</p><p style="max-width:640px;margin:8px auto">You'll explore a world where every drop of water, every breath of air and every decision matters.</p><p class="c2">Are you ready?</p><button class="pri big" data-a="play">🚀 Explore SpaceLife</button>`:`<p class="c2">${ICAP()[k]}</p>`;
+ clearTimeout(introT);if(!last)introT=setTimeout(()=>{introK++;sfx('whoosh');introShow()},4000)}
+const WIN={air:'You discovered how astronauts keep the air fresh!',water:'You discovered how astronauts recycle water on the Moon!',power:'You discovered how the Moon base makes electricity!',green:'You grew fresh food in space!',galley:'You learned how astronauts eat in space!',comm:'You sent a message to Earth!',gallery:'You explored the story of space exploration!'};
+function burst(){for(let i=0;i<16;i++){const s=document.createElement('span');s.className='bst';s.textContent=['⭐','✨','🌟','🚀'][i%4];s.style.left=(5+Math.random()*90)+'%';s.style.animationDelay=(Math.random()*.5)+'s';ui.appendChild(s);setTimeout(()=>s.remove(),2800)}}
+function celebrate(id){if(!S.fin.includes(id))S.fin.push(id);save();closeLab();sel(null);focusRoom();sfx('win');refresh();burst();
+ modal(`<div class="stars" aria-hidden="true">⭐⭐⭐</div><h2 style="text-align:center;padding:0">Awesome! You did it! 🚀</h2><p style="text-align:center;font-size:20px">${WIN[id]}</p><p style="text-align:center">Ready for your next space adventure?</p><div class="row"><button class="pri big" data-a="next">Next adventure ▶</button></div>`)}
+addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#md'))act('keep',{});else if(L)act('lclose',{})}});
+const SFXMAP={close:'close',keep:'close',lclose:'close',st:'select',lab:'open',tgl:'toggle',adv:'whoosh',meal:'select',pickmsg:'select',send:'send',info:'open',mis:'open',stl:'open',more:'open',zi:'zoom',zo:'zoom',reset:'whoosh',lnext:'step',lback:'step',lstep:'step',ldo:'step',filter:'confirm',check:'confirm',prep:'confirm',eat:'confirm',wnext:'step',play:'launch',start:'launch',age:'select',ageNext:'confirm',nameNext:'confirm',alert:'alert',src:'open',rad:'open',lfin:'step',next:'step',skip:'whoosh',dest:'open',window:'whoosh',newgame:'alert'};
+ui.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b)act(b.dataset.a,b.dataset)});
+ui.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='nm')act('nameNext',{})});
+/* ---------- 3D ---------- */
+const R=new THREE.WebGLRenderer({canvas:$('#c'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.1;
+const sc=new THREE.Scene();sc.background=new THREE.Color(0x01020a);
+const cam=new THREE.PerspectiveCamera(50,1,.1,3500);
+const base=new THREE.Group(),sp=new THREE.Group();sc.add(base,sp);base.visible=false;
+const ambL=new THREE.AmbientLight(0x7f8fb8,.5);sc.add(ambL,new THREE.HemisphereLight(0xcfdcff,0x4a4a58,.4));
+const dl=new THREE.DirectionalLight(0xfff3df,1.5);dl.position.set(70,30,40);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);Object.assign(dl.shadow.camera,{left:-50,right:50,top:50,bottom:-50,near:1,far:260});dl.shadow.camera.updateProjectionMatrix();dl.shadow.bias=-.0006;sc.add(dl);
+const pl=new THREE.PointLight(0xfff2d8,.9,40);pl.position.set(0,4,1);base.add(pl);
+const V={scr:{power:[],air:[],plants:[],radio:[],water:[]},gls:[],st:[]};
+const cvs=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
+/* ----- textures ----- */
+function moonTex(rep){const c=cvs(512,512),g=c.getContext('2d');g.fillStyle='#8c8a86';g.fillRect(0,0,512,512);
+ for(let i=0;i<60;i++){const x=Math.random()*512,y=Math.random()*512,r=30+Math.random()*90,gr=g.createRadialGradient(x,y,0,x,y,r),k=Math.random()<.5?'60,58,56':'175,172,166';gr.addColorStop(0,'rgba('+k+',.22)');gr.addColorStop(1,'rgba('+k+',0)');g.fillStyle=gr;g.fillRect(x-r,y-r,2*r,2*r)}
+ for(let i=0;i<5000;i++){const v=70+Math.random()*130|0;g.fillStyle='rgba('+v+','+v+','+(v-4)+',.2)';g.fillRect(Math.random()*512,Math.random()*512,1+Math.random()*3,1+Math.random()*3)}
+ for(let i=0;i<34;i++){const x=Math.random()*512,y=Math.random()*512,r=5+Math.random()*26,gr=g.createRadialGradient(x,y,r*.15,x,y,r);gr.addColorStop(0,'rgba(45,44,44,.55)');gr.addColorStop(.75,'rgba(80,79,78,.3)');gr.addColorStop(.9,'rgba(200,198,192,.55)');gr.addColorStop(1,'rgba(150,148,144,0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill()}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep,rep);t.anisotropy=8;return t}
+function earthTex(){const c=cvs(1024,512),g=c.getContext('2d'),o=g.createLinearGradient(0,0,0,512);o.addColorStop(0,'#1c4f9c');o.addColorStop(.5,'#1d6ab8');o.addColorStop(1,'#184a8e');g.fillStyle=o;g.fillRect(0,0,1024,512);
+ g.fillStyle='#3f8f4f';[[180,170,120,70],[260,300,70,90],[560,170,90,60],[620,250,70,90],[780,190,130,70],[850,350,60,40],[420,120,60,40]].forEach(p=>{for(let i=0;i<14;i++){g.beginPath();g.ellipse(p[0]+(Math.random()-.5)*p[2],p[1]+(Math.random()-.5)*p[3],p[2]*.45,p[3]*.45,Math.random()*3,0,7);g.fill()}});
+ g.fillStyle='#d9c88a';g.beginPath();g.ellipse(620,230,45,30,.3,0,7);g.fill();g.fillStyle='#f4f8ff';g.fillRect(0,0,1024,26);g.fillRect(0,486,1024,26);
+ g.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<70;i++){g.beginPath();g.ellipse(Math.random()*1024,40+Math.random()*430,20+Math.random()*60,5+Math.random()*12,Math.random()*.6,0,7);g.fill()}
+ const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
+function glowTex(col){const c=cvs(256,256),g=c.getContext('2d'),gr=g.createRadialGradient(128,128,0,128,128,128);gr.addColorStop(0,col+'1)');gr.addColorStop(.25,col+'.45)');gr.addColorStop(1,col+'0)');g.fillStyle=gr;g.fillRect(0,0,256,256);return new THREE.CanvasTexture(c)}
+function emo(ch){const c=cvs(128,128),x=c.getContext('2d');x.font='96px serif';x.textAlign='center';x.fillText(ch,64,100);return new THREE.CanvasTexture(c)}
+function ptex(c1,c2,rx,ry){const c=cvs(256,256),g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,256,256);g.fillStyle='rgba(255,255,255,.05)';for(let i=0;i<300;i++)g.fillRect(Math.random()*256,Math.random()*256,3,3);g.strokeStyle=c2;g.lineWidth=5;g.strokeRect(2,2,252,252);g.fillStyle=c2;[[16,16],[240,16],[16,240],[240,240]].forEach(p=>{g.beginPath();g.arc(p[0],p[1],5,0,7);g.fill()});const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);t.anisotropy=4;return t}
+/* ----- helpers ----- */
+const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.55,metalness:.3},o||{}));
+function mesh(p,geo,c,x,y,z,o){const m=new THREE.Mesh(geo,M(c,o));m.position.set(x,y,z);m.userData.e=(o&&o.emissive)||0;m.castShadow=true;p.add(m);return m}
+const bx=(p,w,h,d,c,x,y,z,o)=>mesh(p,new THREE.BoxGeometry(w,h,d),c,x,y,z,o);
+const cy=(p,r,h,c,x,y,z,o,rz)=>{const m=mesh(p,new THREE.CylinderGeometry(r,r,h,18),c,x,y,z,o);if(rz)m.rotation.z=Math.PI/2;return m};
+const sph=(p,r,c,x,y,z,o)=>mesh(p,new THREE.SphereGeometry(r,22,16),c,x,y,z,o);
+function pipe(p,a,b,r,c,o){const A=new THREE.Vector3(a[0],a[1],a[2]),B=new THREE.Vector3(b[0],b[1],b[2]),d=B.clone().sub(A),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),12),M(c,o||{metalness:.7,roughness:.35}));m.position.copy(A.clone().add(B).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());m.userData.e=0;p.add(m);return m}
+function lab(p,t,y){const c=cvs(340,64),g=c.getContext('2d');g.fillStyle='rgba(4,12,32,.88)';g.fillRect(0,0,340,64);g.strokeStyle='#29d3e6';g.lineWidth=3;g.strokeRect(2,2,336,60);g.fillStyle='#fff';g.font='bold 25px sans-serif';g.textAlign='center';g.fillText(t,170,42);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c)}));s.scale.set(3,.57,1);s.position.set(0,y,0);p.add(s)}
+const ST={};
+function star(p,y){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:emo('⭐')}));s.scale.set(.9,.9,1);s.position.set(0,y,0);p.add(s);V.st.push(s)}
+function station(id,x,z,ry,th,label,top){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;g.userData.id=id;base.add(g);ST[id]={g,x,z,th};lab(g,label,top);star(g,top+.8);return g}
+function plane(w,h,c,x,y,z,ry,rx){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),M(c,{roughness:.8,metalness:.15}));m.position.set(x,y,z);m.rotation.y=ry||0;m.rotation.x=rx||0;m.castShadow=true;base.add(m);return m}
+const tp=(w,h,c1,c2,x,y,z,ry,rx,ds)=>{const m=plane(w,h,0xffffff,x,y,z,ry,rx);m.material.map=ptex(c1,c2,w/2.5,h/2.5);if(ds)m.material.side=THREE.DoubleSide;return m};
+/* ----- landing visual: Moon orbiting Earth (kept) ----- */
+const e1=new THREE.Mesh(new THREE.SphereGeometry(3,64,48),new THREE.MeshStandardMaterial({map:earthTex(),roughness:.85,metalness:0}));sp.add(e1);
+const eg1=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex('rgba(90,160,255,'),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));eg1.scale.set(10,10,1);sp.add(eg1);
+const mn=new THREE.Mesh(new THREE.SphereGeometry(.8,48,32),new THREE.MeshStandardMaterial({map:moonTex(2),roughness:1,metalness:0}));sp.add(mn);
+/* ----- sky: stars, Milky Way, Sun ----- */
+{const N=3200,pos=new Float32Array(N*3),col=new Float32Array(N*3);for(let i=0;i<N;i++){const u=Math.random()*2-1,t=Math.random()*6.283,s=Math.sqrt(1-u*u),r=2200;pos.set([r*s*Math.cos(t),r*u,r*s*Math.sin(t)],i*3);const k=.35+Math.random()*.65,w=Math.random();col.set([k*(.8+.2*w),k*(.85+.15*w),k],i*3)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));sc.add(new THREE.Points(g,new THREE.PointsMaterial({size:1.7,sizeAttenuation:false,vertexColors:true,fog:false})));
+ const K=1800,p2=new Float32Array(K*3),nrm=new THREE.Vector3(.3,1,.2).normalize(),a1=new THREE.Vector3(1,0,0).cross(nrm).normalize(),a2=nrm.clone().cross(a1);
+ for(let i=0;i<K;i++){const t=Math.random()*6.283,o=(Math.random()+Math.random()+Math.random()-1.5)*.18,v=a1.clone().multiplyScalar(Math.cos(t)).add(a2.clone().multiplyScalar(Math.sin(t))).add(nrm.clone().multiplyScalar(o)).normalize().multiplyScalar(2150);p2.set([v.x,v.y,v.z],i*3)}
+ const g2=new THREE.BufferGeometry();g2.setAttribute('position',new THREE.BufferAttribute(p2,3));sc.add(new THREE.Points(g2,new THREE.PointsMaterial({color:0x6f86c8,size:1.4,sizeAttenuation:false,transparent:true,opacity:.35,fog:false})))}
+{const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex('rgba(255,244,220,'),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));s.position.copy(dl.position.clone().normalize().multiplyScalar(1700));s.scale.set(380,380,1);sc.add(s)}
+/* ----- Earth, far away in the lunar sky (about 16 degrees above the horizon) ----- */
+const et=earthTex(),eb=new THREE.Mesh(new THREE.SphereGeometry(26,64,48),new THREE.MeshStandardMaterial({map:et,emissiveMap:et,emissive:0xffffff,emissiveIntensity:.45,roughness:.9,metalness:0}));eb.position.set(252,252,-828);eb.rotation.z=.4;base.add(eb);
+{const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex('rgba(100,170,255,'),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));s.position.copy(eb.position);s.scale.set(110,110,1);base.add(s)}
+/* ----- lunar terrain: craters, ridges, rocks ----- */
+const CR=[];for(let i=0;i<50;i++){const a=Math.random()*6.283,d=20+Math.random()*420,r=8+Math.pow(Math.random(),2)*55;if(d<r+18)continue;CR.push({x:Math.cos(a)*d,z:Math.sin(a)*d,r})}
+function hgt(x,z){const d=Math.hypot(x,z),fl=Math.min(1,Math.max(0,(d-16)/30));let h=Math.sin(x*.045)*Math.cos(z*.04)*1.1+Math.sin(x*.11+1.3)*Math.sin(z*.09)*.45+Math.sin(x*.3)*Math.sin(z*.27)*.1;h*=fl;let hc=0;
+ for(const c of CR){const q=Math.hypot(x-c.x,z-c.z)/c.r;if(q<1)hc-=c.r*.1*(1-q*q);else if(q<1.6)hc+=c.r*.05*Math.exp(-Math.pow((q-1.08)*4,2))}
+ return h+hc*fl+Math.max(0,d-380)*.05-.5}
+{const gg=new THREE.PlaneGeometry(1200,1200,300,300);gg.rotateX(-Math.PI/2);const pa=gg.attributes.position,cl=[];
+ for(let i=0;i<pa.count;i++){const x=pa.getX(i),z=pa.getZ(i);pa.setY(i,hgt(x,z));const k=.78+.22*Math.sin(x*.012+1)*Math.cos(z*.015)+.08*Math.sin(x*.05)*Math.sin(z*.04);cl.push(k,k,k*.97)}
+ gg.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));gg.computeVertexNormals();
+ const ground=new THREE.Mesh(gg,new THREE.MeshStandardMaterial({map:moonTex(130),vertexColors:true,roughness:1,metalness:0}));ground.receiveShadow=true;base.add(ground)}
+{const geo=new THREE.DodecahedronGeometry(1,1),mat=new THREE.MeshStandardMaterial({color:0x77757a,roughness:1,flatShading:true}),N=220,im=new THREE.InstancedMesh(geo,mat,N),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),v=new THREE.Vector3(),s=new THREE.Vector3();let n=0;
+ while(n<N){const a=Math.random()*6.283,r=7+Math.pow(Math.random(),1.6)*160,x=Math.cos(a)*r,z=Math.sin(a)*r;
+  if((Math.abs(x)<9.5&&Math.abs(z)<7)||(Math.abs(x)<13&&z<-6&&z>-17)||(x<-7&&x>-12&&Math.abs(z+2.4)<2.5)||(Math.abs(x)<18&&z>0&&z<45)||(x>10&&x<18&&z>-8&&z<15))continue;
+  let k=.15+Math.pow(Math.random(),3)*2.4;if(r<50)k=Math.min(k,.4);e.set(Math.random()*3,Math.random()*3,Math.random()*3);q.setFromEuler(e);v.set(x,hgt(x,z)+k*.35,z);s.set(k*(.8+Math.random()*.5),k*(.5+Math.random()*.4),k*(.8+Math.random()*.5));m4.compose(v,q,s);im.setMatrixAt(n++,m4)}
+ im.castShadow=im.receiveShadow=true;base.add(im)}
+/* ----- habitat shell ----- */
+tp(14,10,'#59627a','#2f3648',0,0,0,0,-Math.PI/2);
+tp(4.5,4.5,'#b4bed2','#7d889e',-4.75,2.25,-5,0,0,1);tp(4.5,4.5,'#b4bed2','#7d889e',4.75,2.25,-5,0,0,1);tp(5,1.2,'#b4bed2','#7d889e',0,.6,-5,0,0,1);tp(5,1.3,'#b4bed2','#7d889e',0,3.85,-5,0,0,1);
+tp(10,4.5,'#a2aec6','#7d889e',-7,2.25,0,Math.PI/2,0,1);tp(10,4.5,'#a2aec6','#7d889e',7,2.25,0,-Math.PI/2,0,1);tp(14,4.5,'#a2aec6','#7d889e',0,2.25,5,Math.PI);
+tp(14,3,'#8892a8','#667085',0,4.5,-3.5,0,Math.PI/2);tp(14,2,'#8892a8','#667085',0,4.5,4,0,Math.PI/2);
+[-3,0,3].forEach(z=>bx(base,14,.2,.3,0x667085,0,4.5,z));
+V.strips=[-3.5,0,3.5].map(x=>bx(base,2,.06,.3,0xffffff,x,4.38,-3.5,{emissive:0xfff2d0}));
+bx(base,15,.5,11,0x343a4a,0,-.26,0);
+[-1.2,1.2].forEach(x=>plane(.12,9,0xf2c230,x,.015,0,0,-Math.PI/2));
+[-7,-3.5,0,3.5,7].forEach(x=>bx(base,.14,4.5,.14,0x59627a,x,2.25,-4.93));[-3,0,3].forEach(z=>{bx(base,.14,4.5,.14,0x59627a,-6.93,2.25,z);bx(base,.14,4.5,.14,0x59627a,6.93,2.25,z)});
+bx(base,14,.12,.1,0x39425a,0,.06,-4.95);bx(base,.1,.12,10,0x39425a,-6.95,.06,0);bx(base,.1,.12,10,0x39425a,6.95,.06,0);
+bx(base,5.3,.18,.3,0x39425a,0,3.2,-4.92);bx(base,5.3,.18,.3,0x39425a,0,1.2,-4.92);[-2.5,2.5].forEach(x=>bx(base,.18,2.1,.3,0x39425a,x,2.2,-4.92));
+{const gl=new THREE.Mesh(new THREE.PlaneGeometry(5,2),new THREE.MeshStandardMaterial({color:0x88ccff,transparent:true,opacity:.12,roughness:.05,metalness:.6}));gl.position.set(0,2.2,-4.95);base.add(gl)}
+/* airlock door (inside) and tunnel (outside) */
+{const g=new THREE.Group();g.position.set(-6.85,0,-2.4);base.add(g);bx(g,.15,2.8,1.5,0x39425a,0,1.4,0);bx(g,.1,2.5,1.2,0xc9ced8,.08,1.3,0);bx(g,.12,.16,1.5,0xffc400,0,2.85,0);
+ cy(g,.22,.06,0x1a2a4a,.14,1.9,0,{emissive:0x0a2a5a},true);cy(g,.2,.05,0xd9a520,.14,1.1,0,null,true);lab(g,'AIRLOCK',3.4);
+ cy(base,1.1,3,0xc9ced8,-8.5,.9,-2.4,{metalness:.5},true);cy(base,1.15,.2,0x8c96a8,-7.1,.9,-2.4,null,true);cy(base,1.15,.2,0x8c96a8,-10,.9,-2.4,null,true)}
+/* outside: solar farm, radiators, comms dish, rover, footprints */
+for(let i=-3;i<=3;i++){const px=14,pz=3+i*3.2,p=new THREE.Group();p.position.set(px,hgt(px,pz),pz);p.rotation.y=Math.atan2(70,40);base.add(p);bx(p,2.8,.08,1.8,0x1a3a8c,0,.9,0,{metalness:.6,roughness:.3}).rotation.x=.6;bx(p,.1,.9,.1,0xb9c0cc,0,.4,-.1)}
+[-1,1].forEach(s=>{bx(base,1.2,.9,.8,0x59607a,s*10.5,hgt(s*10.5,-11)+.4,-11);pipe(base,[s*10.5,-.3,-11],[s*6,-.45,-5.2],.05,0x1d2230)});
+[0,1,2,3].forEach(i=>bx(base,.08,2.2,1.6,0xeef0f5,-4.5+i*.5,2.6,-5.6,{metalness:.2}));
+cy(base,.08,6,0xb9c0cc,9.5,2.5,-6);{const d=new THREE.Mesh(new THREE.SphereGeometry(1.3,28,14,0,6.283,0,1),M(0xe8ecf4,{side:THREE.DoubleSide,metalness:.4}));d.position.set(9.5,5.6,-6);d.rotation.x=-1.0;d.castShadow=true;base.add(d)}
+{const r=new THREE.Group();r.position.set(2.8,-.5,-9);r.rotation.y=.5;base.add(r);bx(r,1.6,.35,1,0xe8ecf4,0,.45,0);bx(r,1.4,.04,.9,0x1a3a8c,0,.66,0,{metalness:.6});cy(r,.03,.8,0xb9c0cc,.5,1,.2);sph(r,.1,0x2a3350,.5,1.4,.2);[-1,1].forEach(a=>[-1,1].forEach(b=>cy(r,.28,.22,0x2a2d36,a*.85,.28,b*.4,null,true)))}
+for(let i=0;i<12;i++){const t=i/11,m=new THREE.Mesh(new THREE.PlaneGeometry(.22,.42),new THREE.MeshBasicMaterial({color:0x4a4a4a,transparent:true,opacity:.55,depthWrite:false}));m.rotation.x=-Math.PI/2;m.rotation.z=.6;m.position.set(-9.6+4.6*t+(i%2?.14:-.14),-.485,-2.4-6.6*t);base.add(m)}
+/* ----- Station: AIR ----- */
+{const g=station('air',-5,-4.4,0,0,'AIR & LIFE SUPPORT',4.2);bx(g,1.9,3.4,.9,0x6f7a90,0,1.7,0);bx(g,1.7,3.2,.05,0x8c96aa,0,1.7,.47);
+ for(let i=0;i<7;i++)bx(g,1.25,.045,.07,0x1b2030,0,.35+i*.1,.5);
+ V.scr.air.push(bx(g,1.25,.65,.05,0x0a2a22,0,2.75,.5,{emissive:0x0f7a52}));
+ [0,1,2,3,4].forEach(i=>bx(g,.12,.12+i*.07,.03,0x3cff9a,-.45+i*.2,2.6+(.12+i*.07)/2-.0,.54,{emissive:0x28ff90}));
+ V.airLed=sph(g,.07,0x40ff90,-.6,2.15,.52,{emissive:0x40ff90});V.co2Led=sph(g,.07,0x40ff90,.6,2.15,.52,{emissive:0x40ff90});
+ cy(g,.2,.05,0xf2f2f2,0,1.6,.5).rotation.x=Math.PI/2;bx(g,.015,.15,.02,0xd02020,0,1.65,.54).rotation.z=-.7;
+ [[-1.3,0x2f8fff],[-1.7,0x9aa3b2]].forEach(a=>{cy(g,.22,1.7,0xdfe4ee,a[0],.9,.25);sph(g,.22,0xdfe4ee,a[0],1.75,.25);cy(g,.225,.12,a[1],a[0],1.3,.25);cy(g,.06,.15,0xb59a3a,a[0],1.98,.25)});
+ pipe(g,[-1.3,2.0,.25],[-.95,2.4,.4],.04,0xb9c0cc);pipe(g,[-1.7,2.0,.25],[-1.3,2.2,.3],.04,0xb9c0cc);pipe(g,[-.95,2.4,.4],[-.95,1.2,.5],.045,0xb9c0cc);
+ [-.4,.4].forEach(x=>cy(g,.24,.8,0xcfd5e0,x,1.1,.55).rotation.x=Math.PI/2)}
+/* ----- Station: WATER ----- */
+{const g=station('water',-6.2,1,Math.PI/2,Math.PI/2,'WATER RECOVERY',3.6);
+ [-1.1,0,1.1].forEach((x,i)=>{const sh=cy(g,.45,1.9,0x9fd8ff,x,1,0,{transparent:true,opacity:.3,roughness:.1});sh.castShadow=false;
+  if(i===0){const w=cy(g,.4,1.8,0x2f8fff,x,1,0);w.geometry.translate(0,.9,0);w.position.y=.1;V.tank=w}else cy(g,.4,1.5,0x2f8fff,x,.85,0);
+  [.3,1.1,1.8].forEach(y=>cy(g,.47,.05,0x8c96a8,x,y,0));bx(g,.05,1.6,.03,0x061018,x+.42,1,.2,{emissive:0x1a6aff});pipe(g,[x,1.95,0],[x,2.3,0],.05,0xc9d1dc)});
+ pipe(g,[-1.6,2.3,0],[1.6,2.3,0],.08,0xc9d1dc);
+ [-.8,0,.8].forEach(x=>{cy(g,.24,.9,0xf2f2f2,x,.5,.95);cy(g,.26,.12,0x2f8fff,x,1,.95);pipe(g,[x,1.05,.95],[x,2.3,.7],.04,0xc9d1dc)});
+ pipe(g,[-.8,.3,.95],[.8,.3,.95],.04,0xc9d1dc);
+ bx(g,.7,.35,.4,0x3a4a6a,1.5,.25,.95);cy(g,.2,.5,0xd04030,1.5,.5,.95,null,true);
+ V.scr.water.push(bx(g,1,.8,.5,0x7a5cd6,0,.4,1.55,{emissive:0x4a2aaa}));bx(g,.6,.35,.05,0x061018,0,.55,1.82,{emissive:0x1a8aff});
+ [-1.1,1.1].forEach(x=>{cy(g,.12,.04,0xd04030,x,2.5,0,null,true).rotation.y=0;})}
+/* ----- Station: POWER ----- */
+{const g=station('power',5,-4.4,0,0,'POWER STATION',4.2);bx(g,2,3.2,.9,0x74809a,0,1.6,0);bx(g,.95,2.9,.05,0x8d99b3,-.5,1.5,.47);bx(g,.95,2.9,.05,0x8d99b3,.5,1.5,.47);
+ V.scr.power.push(bx(g,1.4,.7,.05,0x061018,0,2.55,.5,{emissive:0x0a3a5a}));
+ const bar=bx(g,1.2,.2,.05,0xffd36b,-.6,2.55,.54,{emissive:0x6a5000});bar.geometry.translate(.6,0,0);V.pw=bar;
+ for(let r=0;r<3;r++)for(let c=0;c<5;c++)bx(g,.12,.16,.05,r%2?0x2f8fff:0xe8eef8,-.6+c*.3,1.5-r*.28,.5);
+ for(let i=0;i<5;i++)bx(g,.5,.12,.04,i%2?0x1a1a1a:0xffc400,-.75+i*.4,.4,.5);
+ [0,1,2].forEach(i=>{bx(g,1.1,.45,.8,0x2a3a58,1.7,.25+i*.5,.2);bx(g,.9,.04,.02,0x40ff90,1.7,.25+i*.5,.61,{emissive:0x28ff90});cy(g,.05,.06,0xff7a1a,1.4,.5+i*.5,.2);cy(g,.05,.06,0x2f8fff,2,.5+i*.5,.2)});
+ bx(g,.8,.9,.6,0x56627a,-1.6,.45,.2);for(let i=0;i<5;i++)bx(g,.04,.8,.5,0x6f7a92,-1.95+i*.16,.45,.2);
+ pipe(g,[.8,3.2,.3],[.8,4.4,.3],.06,0x444b5a);pipe(g,[-.8,3.2,.3],[-.8,4.4,.3],.06,0x444b5a);pipe(g,[-1.6,.9,.2],[-1.6,2.2,.2],.05,0x444b5a)}
+/* ----- Station: GREENHOUSE ----- */
+{const g=station('green',6.2,1.2,-Math.PI/2,-Math.PI/2,'GREENHOUSE',4);V.pl=[];
+ const gl=bx(g,2.7,3.2,1.5,0x9fd8ff,0,1.6,0,{transparent:true,opacity:.1,metalness:.1,roughness:.05,depthWrite:false});gl.castShadow=false;
+ [[-1.35,-.75],[1.35,-.75],[-1.35,.75],[1.35,.75]].forEach(p=>cy(g,.04,3.2,0xb9c0cc,p[0],1.6,p[1]));bx(g,2.7,.06,1.5,0xb9c0cc,0,3.2,0);bx(g,2.7,.06,1.5,0xb9c0cc,0,.03,0);
+ [.55,1.5,2.45].forEach(y=>{bx(g,2.3,.1,.9,0x9aa4b8,0,y,0);bx(g,2.1,.12,.7,0x4a3426,0,y+.1,0);
+  for(let k=0;k<5;k++){const p=new THREE.Group();p.position.set(-.85+k*.43,y+.16,(k%2?.12:-.12));g.add(p);cy(p,.025,.3,0x2f9a46,0,.15,0);[0,2.1,4.2].forEach(a=>{const l=sph(p,.15,0x3cc05a,Math.cos(a)*.1,.34,Math.sin(a)*.1);l.scale.set(1,.55,1.5)});V.pl.push(p)}
+  const L2=bx(g,2.2,.06,.35,0xff55cc,0,y+.8,.2,{emissive:0xff2fb0});V.gls.push(L2);
+  pipe(g,[-1.1,y+.25,-.4],[1.1,y+.25,-.4],.03,0x6fa8d8);for(let k=0;k<5;k++)cy(g,.015,.12,0x6fa8d8,-.85+k*.43,y+.2,-.4)});
+ cy(g,.22,.8,0x2f8fff,1.55,.4,.8);pipe(g,[1.55,.8,.8],[1.25,.8,-.4],.04,0x6fa8d8);
+ V.scr.plants.push(bx(g,.5,.4,.05,0x061018,1.1,.2+2.2,.78,{emissive:0x0a5a2a}));bx(g,.06,.3,.04,0xb9c0cc,1.35,1.6,.78)}
+/* ----- Station: GALLEY ----- */
+{const g=station('galley',-3,3,0,0,'GALLEY',3.2);bx(g,2.6,.9,.9,0xc7ccd6,0,.45,0);bx(g,2.6,.08,1,0x3b4254,0,.94,0);
+ bx(g,1.6,1.2,.5,0x8c96a8,-.5,1.9,-.2);[-.8,-.2].forEach(x=>{bx(g,.5,.5,.05,0xa6b0c2,x,1.9,.07);bx(g,.04,.12,.04,0x2a3350,x+.15,1.9,.11)});bx(g,1.4,.3,.05,0xa6b0c2,-.5,1.3,.07);
+ ['#ff8c5a','#7dd87d','#ffd36b','#5ad1ff'].forEach((c,i)=>bx(g,.28,.12,.38,c,-.55+i*.35,1.06,.1));
+ bx(g,.7,.5,.5,0xf2f2f2,.85,1.2,-.1);bx(g,.4,.3,.04,0x2a1a0a,.85,1.2,.16,{emissive:0xff8a2a});cy(g,.18,.5,0x2f8fff,1.1,1.2,.3);cy(g,.04,.12,0xb9c0cc,1.1,1.0,.48).rotation.x=Math.PI/2;
+ cy(g,.28,.04,0xf2f2f2,-.6,.98,.35);cy(g,.2,.03,0xd9a520,-.6,1.01,.35)}
+/* ----- Station: COMMUNICATIONS ----- */
+{const g=station('comm',3.5,3,0,0,'COMMUNICATIONS',3.4);bx(g,2.6,.1,1.1,0x59607a,0,.9,0);[-1.2,1.2].forEach(x=>bx(g,.1,.9,.9,0x3b4254,x,.45,0));
+ [[-.95,.85,-.5],[0,1.1,0],[.95,.85,.5]].forEach((s,i)=>{const w=i===1?1.1:.8;V.scr.radio.push(bx(g,w,.55,.06,0x061018,s[0],1.45,-.2,{emissive:i===1?0x0a3a5a:0x0a4a30}));for(let k=0;k<9;k++)bx(g,.05,.05+Math.abs(Math.sin(k*1.3+i))*.25,.03,0x5ad1ff,s[0]-w/2+.1+k*(w-.2)/8,1.45,-.16,{emissive:0x2f8fff});cy(g,.04,.35,0x2a3350,s[0],1.1,-.25)});
+ bx(g,.8,.04,.3,0x20242e,0,.97,.28);for(let k=0;k<6;k++)bx(g,.08,.03,.1,0x59607a,-.3+k*.12,1,.12);
+ V.commLed=sph(g,.07,0x40ff90,.95,1.05,.3,{emissive:0x40ff90});
+ cy(g,.05,1.2,0xb9c0cc,1.3,.6,-.3);{const d=new THREE.Mesh(new THREE.SphereGeometry(.45,18,10,0,6.283,0,1.1),M(0xe8ecf4,{side:THREE.DoubleSide}));d.position.set(1.3,1.35,-.3);d.rotation.x=-.8;d.castShadow=true;g.add(d)}
+ cy(g,.1,.06,0x2a3350,-1.0,.98,.3);bx(g,.3,.05,.2,0x2a3350,-1.0,.96,.28)}
+/* ----- Station: GALLERY ----- */
+{const g=station('gallery',6.35,-2.5,-Math.PI/2,-Math.PI/2,'GALLERY',4.1);bx(g,2.5,2.2,.1,0x0a1330,0,2,-.4,{emissive:0x0a2060});
+ const pl2=[[0xffd36b,.38,-1.0,true],[0x9aa3b2,.07,-.62],[0xe0b080,.1,-.45],[0x2f8fff,.11,-.25],[0xd0603a,.09,-.05],[0xd9a066,.25,.25],[0xe8d08a,.2,.62],[0x8fe0f0,.14,.9],[0x3a5adf,.14,1.1]];
+ pl2.forEach(p=>{const s=sph(g,p[1],p[0],p[2]*1.05,2.2,-.25,p[3]?{emissive:0xffa000}:null);if(p[1]===.2){const r=new THREE.Mesh(new THREE.RingGeometry(.26,.4,30),M(0xcdb878,{side:THREE.DoubleSide}));r.rotation.x=1.2;r.position.copy(s.position);g.add(r)}});
+ bx(g,2.2,.03,.03,0x59607a,0,2.2,-.25);bx(g,.5,.7,.5,0x2a3350,-.8,.35,.3);cy(g,.09,.9,0xf2f4f8,-.8,1.15,.3);cy(g,.06,.7,0xe8772e,-.8,1.05,.3);[-1,1].forEach(s=>cy(g,.04,.6,0xf2f4f8,-.8+s*.12,.85,.3));{const c=new THREE.Mesh(new THREE.ConeGeometry(.09,.25,14),M(0xf2f4f8));c.position.set(-.8,1.72,.3);g.add(c)}
+ bx(g,.5,.7,.5,0x2a3350,.8,.35,.3);const mo=sph(g,.28,0xffffff,.8,.95,.3);mo.material.map=moonTex(1);mo.material.color.setHex(0xffffff);
+ bx(g,.45,.28,.04,0x0a1a40,.8,1.45,.5,{emissive:0x1a4aff});bx(g,.45,.28,.04,0x0a1a40,-.8,1.95,.5,{emissive:0x1a4aff})}
+/* ----- window hotspot ----- */
+station('window',0,-4.85,0,0,'WINDOW: LOOK AT EARTH',3.5);
+/* ----- Astronaut (neutral suit, idle animations) ----- */
+{const a=new THREE.Group();a.position.set(0,0,1.2);base.add(a);V.ast=a;const W=0xf2f3f7,Gy=0x9aa3b2,Or=0xff7a1a;
+ const body=new THREE.Group();a.add(body);V.body=body;cy(body,.34,.75,W,0,1.25,0);bx(body,.5,.2,.3,W,0,.82,0);
+ [-1,1].forEach(s=>{const hip=new THREE.Group();hip.position.set(s*.15,.85,0);body.add(hip);cy(hip,.13,.5,W,0,-.25,0);sph(hip,.13,Gy,0,-.52,0);cy(hip,.12,.45,W,0,-.75,0);bx(hip,.22,.14,.36,0x59607a,0,-.98,.06);bx(hip,.23,.04,.37,Or,0,-.91,.06)});
+ bx(body,.28,.2,.06,0x2a3350,0,1.35,.34);[0,1,2].forEach(i=>sph(body,.02,[0xff4040,0x40ff90,0x5ad1ff][i],-.08+i*.08,1.38,.38,{emissive:[0xff4040,0x40ff90,0x5ad1ff][i]}));
+ bx(body,.55,.75,.26,0xe6e8ee,0,1.3,-.34);pipe(body,[-.12,1.35,.3],[-.2,1.5,-.2],.025,0x2a3350);pipe(body,[.12,1.35,.3],[.2,1.5,-.2],.025,0x2a3350);
+ const arm=s=>{const p=new THREE.Group();p.position.set(s*.42,1.55,0);body.add(p);cy(p,.1,.4,W,0,-.2,0);sph(p,.1,Gy,0,-.42,0);const f=new THREE.Group();f.position.set(0,-.42,0);p.add(f);cy(f,.09,.4,W,0,-.2,0);cy(f,.095,.05,Or,0,-.38,0);sph(f,.11,0xdfe3ea,0,-.46,0);return p};
+ V.armL=arm(-1);V.armR=arm(1);
+ const head=new THREE.Group();head.position.set(0,1.78,0);body.add(head);V.head=head;sph(head,.34,W,0,.1,0);const vz=sph(head,.27,0xd4a52a,0,.1,.12,{metalness:.95,roughness:.08,emissive:0x1a1000});vz.scale.set(1,.88,.78);cy(head,.3,.07,Gy,0,-.17,0)}
+/* ----- state -> visuals ----- */
+function r3(){if(!V.airLed)return;const c=k=>S.sys[k]?0x40ff90:0xff5050;
+ V.airLed.material.color.setHex(c('air'));V.airLed.material.emissive.setHex(c('air'));V.co2Led.material.color.setHex(c('co2'));V.co2Led.material.emissive.setHex(c('co2'));
+ V.commLed.material.color.setHex(c('comm'));V.commLed.material.emissive.setHex(c('comm'));
+ V.pw.scale.x=Math.max(.02,S.power/100);V.tank.scale.y=Math.max(.03,S.water/100);
+ V.pl.forEach(p=>p.scale.setScalar(.35+S.growth*.28));
+ V.gls.forEach(m=>{m.userData.e=S.sys.gl?0xff2fb0:0x222222;m.material.emissive.setHex(m.userData.e);m.material.color.setHex(S.sys.gl?0xff55cc:0x555555)})}
+const sel0=new THREE.Raycaster();
+function sel(id){Object.keys(ST).forEach(k=>ST[k].g.traverse(m=>{if(m.material&&m.material.emissive&&!m.isSprite&&!m.material.transparent)m.material.emissive.setHex(k===id?0x1a5a8a:m.userData.e||0)}))}
+/* ----- camera ----- */
+let cth=0,cph=1,cd=17,ct=new THREE.Vector3(0,1.5,0),gth=0,gph=1,gd=17,gt=new THREE.Vector3(0,1.5,0);
+function focusRoom(){gth=0;gph=1;gd=17;gt.set(0,1.5,0)}
+function focusStation(id){const s=ST[id];sel(id);gt.set(s.x,1.6,s.z);gth=s.th;gph=1.15;gd=8;sfx('whoosh')}
+function lookWindow(){cur=null;sel(null);gt.set(0,2.2,-5);gth=0;gph=1.6;gd=2.6;sfx('whoosh');toast('🌍 That is Earth, far away in the sky!');refresh()}
+const minD=()=>Math.abs(gt.z+5)<.2?2.2:6;
+const cv=$('#c');let dn=null;
+cv.addEventListener('pointerdown',e=>{dn={x:e.clientX,y:e.clientY,m:0};cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointercancel',()=>{dn=null});
+cv.addEventListener('pointermove',e=>{if(!dn||mode!==6)return;const dx=e.clientX-dn.x,dy=e.clientY-dn.y;dn.m+=Math.abs(dx)+Math.abs(dy);dn.x=e.clientX;dn.y=e.clientY;gth=clamp(gth-dx*.006,-1.8,1.8);gph=clamp(gph-dy*.005,.35,1.62);if(dn.m>12)done(1)});
+cv.addEventListener('pointerup',e=>{if(!dn)return;const moved=dn.m>6;dn=null;if(moved||mode!==6)return;
+ const r=cv.getBoundingClientRect();sel0.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),cam);
+ const hit=sel0.intersectObjects(Object.values(ST).map(s=>s.g),true)[0];if(!hit)return;let o=hit.object;while(o&&!o.userData.id)o=o.parent;if(o){sfx('select');open(o.userData.id)}});
+cv.addEventListener('wheel',e=>{if(mode!==6)return;e.preventDefault();gd=clamp(gd+e.deltaY*.012,minD(),26);sfx('zoom');done(1)},{passive:false});
+function size(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+addEventListener('resize',size);size();
+const clk=new THREE.Clock();
+(function loop(){requestAnimationFrame(loop);const t=clk.getElapsedTime();
+ if(mode===6){const k=.1;cth+=(gth-cth)*k;cph+=(gph-cph)*k;cd+=(gd-cd)*k;ct.lerp(gt,k);
+  cam.position.set(ct.x+cd*Math.sin(cph)*Math.sin(cth),ct.y+cd*Math.cos(cph),ct.z+cd*Math.sin(cph)*Math.cos(cth));cam.lookAt(ct);
+  V.body.position.y=Math.sin(t*1.6)*.015;V.head.rotation.y=Math.sin(t*.5)*.5;V.head.rotation.x=Math.sin(t*.37)*.08;
+  const wt=performance.now()/1000-waveT,tr=wt<2.4?2.3+Math.sin(wt*9)*.3:.05+Math.sin(t*1.2)*.05;V.armR.rotation.z+=(tr-V.armR.rotation.z)*.08;V.armL.rotation.z+=(-.05-Math.sin(t*1.1)*.05-V.armL.rotation.z)*.1;
+  V.st.forEach((s,i)=>{const k2=.85+.15*Math.sin(t*3+i);s.scale.set(k2,k2,1)});eb.rotation.y=t*.01}
+ else{e1.rotation.y=t*.12;mn.position.set(Math.cos(t*.2)*6,1,Math.sin(t*.2)*6);cam.position.set(Math.sin(t*.05)*3,1.5,13);cam.lookAt(0,0,0)}
+ R.render(sc,cam)})();
+r3();
+go(1);
+</script></body></html>
